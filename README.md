@@ -1,0 +1,2 @@
+# mahjong-rule
+course assignment
