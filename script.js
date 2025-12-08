@@ -14,6 +14,22 @@ function scrollToSection(sectionId) {
     }
 }
 
+// Scroll to Gameplay Function
+function scrollToGameplay() {
+    const gameplaySection = document.getElementById('gameplay');
+    if (gameplaySection) {
+        const headerHeight = document.querySelector('.header').offsetHeight;
+        const progressHeight = document.querySelector('.progress-container').offsetHeight;
+        const offset = headerHeight + progressHeight + 20;
+        const targetPosition = gameplaySection.offsetTop - offset;
+        
+        window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+        });
+    }
+}
+
 // Scroll to Top Function
 function scrollToTop() {
     const backToTop = document.getElementById('backToTop');
@@ -79,6 +95,46 @@ function setupClaimCardHandlers() {
             
             // 阻止内容区域的点击事件冒泡
             const content = card.querySelector('.claim-content');
+            if (content) {
+                content.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
+        }
+    });
+}
+
+// Setup Step Card Click Handlers
+function setupStepCardHandlers() {
+    const stepCards = document.querySelectorAll('.step-card.collapsible');
+    stepCards.forEach(card => {
+        const header = card.querySelector('.step-header');
+        if (header) {
+            // 只在点击header时触发展开/收起
+            header.style.cursor = 'pointer';
+            header.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                // 如果点击的是步骤1、2、3（step-group），则联动展开/折叠
+                if (card.classList.contains('step-group')) {
+                    const allGroupCards = document.querySelectorAll('.step-card.collapsible.step-group');
+                    const isExpanded = card.classList.contains('expanded');
+                    
+                    allGroupCards.forEach(groupCard => {
+                        if (isExpanded) {
+                            groupCard.classList.remove('expanded');
+                        } else {
+                            groupCard.classList.add('expanded');
+                        }
+                    });
+                } else {
+                    // 步骤4独立展开/折叠
+                    card.classList.toggle('expanded');
+                }
+            });
+            
+            // 阻止内容区域的点击事件冒泡
+            const content = card.querySelector('.step-content');
             if (content) {
                 content.addEventListener('click', function(e) {
                     e.stopPropagation();
@@ -494,6 +550,9 @@ function init() {
     // Setup claim card handlers (must be after tile click animation)
     setupClaimCardHandlers();
     
+    // Setup Step Card Click Handlers
+    setupStepCardHandlers();
+    
     // Setup Pung and Kong interactive effects
     setupPungKongInteractions();
     
@@ -815,9 +874,215 @@ function triggerKongAnimation(element) {
     
     const tilesInHand = exampleVisual.querySelector('.tiles-in-hand');
     const meldedGroup = exampleVisual.querySelector('.melded-group');
-    const discardedTile = exampleVisual.querySelector('.tile.discarded');
+    const discardedTile = exampleVisual.querySelector('.tile-img-container.discarded') || 
+                          exampleVisual.querySelector('.tile.discarded');
     const lastTile = exampleVisual.querySelector('.tile:last-child');
     
+    // Check if this is Exposed Kong (has tiles-in-hand and discarded tile)
+    if (tilesInHand && discardedTile) {
+        triggerExposedKongAnimation(exampleVisual, tilesInHand, discardedTile);
+        return;
+    }
+    
+    // Check if this is Added Kong (has melded-group and a fourth tile after plus)
+    if (meldedGroup) {
+        const allTiles = exampleVisual.querySelectorAll('.tile-img-container');
+        const meldedTiles = meldedGroup.querySelectorAll('.tile-img-container');
+        const plus = exampleVisual.querySelector('.plus');
+        
+        // Find the fourth tile (tile that comes after plus, not in melded-group)
+        if (plus && allTiles.length > meldedTiles.length) {
+            let fourthTile = null;
+            // Try to find tile after plus
+            for (let tile of allTiles) {
+                if (!tile.closest('.melded-group')) {
+                    const tilePos = tile.compareDocumentPosition(plus);
+                    if (tilePos & Node.DOCUMENT_POSITION_FOLLOWING) {
+                        fourthTile = tile;
+                        break;
+                    }
+                }
+            }
+            // If not found, get the last tile that's not in melded-group
+            if (!fourthTile) {
+                const tilesArray = Array.from(allTiles);
+                fourthTile = tilesArray.find(tile => !tile.closest('.melded-group'));
+            }
+            
+            if (fourthTile && meldedTiles.length >= 3) {
+                triggerAddedKongAnimation(exampleVisual, meldedGroup, fourthTile);
+                return;
+            }
+        }
+    }
+}
+
+// Exposed Kong Animation Effect - Special animation for Exposed Kong
+function triggerExposedKongAnimation(exampleVisual, tilesInHand, discardedTile) {
+    // Hide plus symbol
+    const plusSymbol = exampleVisual.querySelector('.plus');
+    if (plusSymbol) plusSymbol.style.opacity = '0';
+    
+    // Get the third tile (last tile in tiles-in-hand) as target
+    const tiles = Array.from(tilesInHand.querySelectorAll('.tile-img-container'));
+    if (tiles.length < 3) {
+        exampleVisual.classList.remove('animating');
+        return;
+    }
+    
+    const thirdTile = tiles[tiles.length - 1]; // Third tile
+    const thirdTileRect = thirdTile.getBoundingClientRect();
+    const discardedRect = discardedTile.getBoundingClientRect();
+    
+    // Clone the discarded tile for animation
+    const clonedDiscarded = discardedTile.cloneNode(true);
+    clonedDiscarded.style.position = 'fixed';
+    clonedDiscarded.style.left = discardedRect.left + 'px';
+    clonedDiscarded.style.top = discardedRect.top + 'px';
+    clonedDiscarded.style.width = discardedTile.offsetWidth + 'px';
+    clonedDiscarded.style.height = discardedTile.offsetHeight + 'px';
+    clonedDiscarded.style.zIndex = '10000';
+    clonedDiscarded.style.transform = 'scale(1) rotate(0deg)';
+    clonedDiscarded.style.opacity = '1';
+    clonedDiscarded.style.transition = 'all 1s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    clonedDiscarded.classList.add('animated-tile');
+    document.body.appendChild(clonedDiscarded);
+    
+    // Move to top-right corner of third tile (higher position)
+    setTimeout(() => {
+        // Position at top-right corner of third tile, higher up
+        const topRightX = thirdTileRect.right - 10;
+        const topRightY = thirdTileRect.top - 70;
+        
+        clonedDiscarded.style.left = topRightX + 'px';
+        clonedDiscarded.style.top = topRightY + 'px';
+        clonedDiscarded.style.transform = 'scale(1.1) rotate(15deg)';
+    }, 50);
+    
+    // Collision effect - move to upper-right side of third tile (碰一下)
+    setTimeout(() => {
+        // Create bounce/impact effect
+        clonedDiscarded.style.transition = 'all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+        
+        // Move to the right side of third tile (upper-right area)
+        const collisionX = thirdTileRect.right + 8;
+        const collisionY = thirdTileRect.top + 5;
+        
+        clonedDiscarded.style.left = collisionX + 'px';
+        clonedDiscarded.style.top = collisionY + 'px';
+        clonedDiscarded.style.transform = 'scale(1.2) rotate(-10deg)';
+        
+        // Create impact ripple effect at collision point
+        const ripple = document.createElement('div');
+        ripple.style.position = 'fixed';
+        ripple.style.left = collisionX + (clonedDiscarded.offsetWidth / 2) + 'px';
+        ripple.style.top = collisionY + (clonedDiscarded.offsetHeight / 2) + 'px';
+        ripple.style.width = '0px';
+        ripple.style.height = '0px';
+        ripple.style.border = '3px solid rgba(168, 85, 247, 0.6)';
+        ripple.style.borderRadius = '50%';
+        ripple.style.transform = 'translate(-50%, -50%)';
+        ripple.style.zIndex = '9999';
+        ripple.style.pointerEvents = 'none';
+        document.body.appendChild(ripple);
+        
+        // Animate ripple
+        setTimeout(() => {
+            ripple.style.transition = 'all 0.4s ease-out';
+            ripple.style.width = '60px';
+            ripple.style.height = '60px';
+            ripple.style.opacity = '0';
+            setTimeout(() => ripple.remove(), 400);
+        }, 10);
+        
+        // Bounce back slightly
+        setTimeout(() => {
+            clonedDiscarded.style.transition = 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            clonedDiscarded.style.left = (collisionX - 5) + 'px';
+            clonedDiscarded.style.top = (collisionY - 3) + 'px';
+            clonedDiscarded.style.transform = 'scale(1.05) rotate(0deg)';
+        }, 250);
+    }, 1050);
+    
+    // Fade out the cloned tile
+    setTimeout(() => {
+        clonedDiscarded.style.transition = 'all 0.3s ease-out';
+        clonedDiscarded.style.opacity = '0';
+        clonedDiscarded.style.transform = 'scale(0.8)';
+        setTimeout(() => {
+            if (clonedDiscarded.parentNode) {
+                clonedDiscarded.remove();
+            }
+        }, 300);
+    }, 1400);
+    
+    // Show "Kong!" text after collision
+    setTimeout(() => {
+        const kongText = document.createElement('div');
+        kongText.className = 'pung-kong-text kong-text';
+        kongText.textContent = 'Kong!';
+        kongText.style.position = 'fixed';
+        kongText.style.left = thirdTileRect.left + (thirdTileRect.width / 2) + 'px';
+        kongText.style.top = thirdTileRect.top - 50 + 'px';
+        kongText.style.transform = 'translateX(-50%) scale(0.3)';
+        kongText.style.opacity = '0';
+        kongText.style.zIndex = '10001';
+        kongText.style.transition = 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        document.body.appendChild(kongText);
+        
+        // Bounce appearance
+        setTimeout(() => {
+            kongText.style.transform = 'translateX(-50%) scale(1.3)';
+            kongText.style.opacity = '1';
+        }, 50);
+        
+        // Scale back
+        setTimeout(() => {
+            kongText.style.transform = 'translateX(-50%) scale(1) translateY(-10px)';
+        }, 450);
+        
+        // Fade out and remove (faster)
+        setTimeout(() => {
+            kongText.style.opacity = '0';
+            kongText.style.transform = 'translateX(-50%) scale(0.9) translateY(-20px)';
+            setTimeout(() => kongText.remove(), 300);
+        }, 1000);
+    }, 1500);
+    
+    // Highlight the tiles group
+    setTimeout(() => {
+        tilesInHand.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        tilesInHand.style.transform = 'scale(1.12)';
+        tiles.forEach(tile => {
+            tile.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            tile.style.boxShadow = '0 4px 12px rgba(168, 85, 247, 0.5)';
+        });
+        
+        setTimeout(() => {
+            tilesInHand.style.transform = 'scale(1)';
+            tiles.forEach(tile => {
+                tile.style.boxShadow = '';
+                tile.style.transition = '';
+            });
+            tilesInHand.style.transition = '';
+            if (plusSymbol) {
+                plusSymbol.style.transition = 'opacity 0.3s ease-in';
+                plusSymbol.style.opacity = '1';
+            }
+            exampleVisual.classList.remove('animating');
+        }, 800);
+    }, 1500);
+    
+    // Clean up
+    setTimeout(() => {
+        document.querySelectorAll('.animated-tile').forEach(tile => {
+            if (tile.parentNode) {
+                tile.remove();
+            }
+        });
+    }, 3000);
+    
+    // Original Kong animation for other cases
     let tilesToAnimate = [];
     
     if (tilesInHand) {
@@ -921,6 +1186,172 @@ function triggerKongAnimation(element) {
     setTimeout(() => {
         clonedFourth.remove();
     }, 1200);
+}
+
+// Added Kong Animation Effect - Special animation for Added Kong
+function triggerAddedKongAnimation(exampleVisual, meldedGroup, fourthTile) {
+    // Hide plus symbol
+    const plusSymbol = exampleVisual.querySelector('.plus');
+    if (plusSymbol) plusSymbol.style.opacity = '0';
+    
+    // Get the third tile (last tile in melded-group) as target
+    const tiles = Array.from(meldedGroup.querySelectorAll('.tile-img-container'));
+    if (tiles.length < 3) {
+        exampleVisual.classList.remove('animating');
+        return;
+    }
+    
+    const thirdTile = tiles[tiles.length - 1]; // Third tile
+    const thirdTileRect = thirdTile.getBoundingClientRect();
+    const fourthTileRect = fourthTile.getBoundingClientRect();
+    
+    // Clone the fourth tile for animation
+    const clonedFourth = fourthTile.cloneNode(true);
+    clonedFourth.style.position = 'fixed';
+    clonedFourth.style.left = fourthTileRect.left + 'px';
+    clonedFourth.style.top = fourthTileRect.top + 'px';
+    clonedFourth.style.width = fourthTile.offsetWidth + 'px';
+    clonedFourth.style.height = fourthTile.offsetHeight + 'px';
+    clonedFourth.style.zIndex = '10000';
+    clonedFourth.style.transform = 'scale(1) rotate(0deg)';
+    clonedFourth.style.opacity = '1';
+    clonedFourth.style.transition = 'all 1s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    clonedFourth.classList.add('animated-tile');
+    document.body.appendChild(clonedFourth);
+    
+    // Move to top-right corner of third tile (higher position)
+    setTimeout(() => {
+        // Position at top-right corner of third tile, higher up
+        const topRightX = thirdTileRect.right - 10;
+        const topRightY = thirdTileRect.top - 70;
+        
+        clonedFourth.style.left = topRightX + 'px';
+        clonedFourth.style.top = topRightY + 'px';
+        clonedFourth.style.transform = 'scale(1.1) rotate(15deg)';
+    }, 50);
+    
+    // Collision effect - move to upper-right side of third tile (碰一下)
+    setTimeout(() => {
+        // Create bounce/impact effect
+        clonedFourth.style.transition = 'all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+        
+        // Move to the bottom-left side of third tile (左下角碰一下)
+        const collisionX = thirdTileRect.left - 8;
+        const collisionY = thirdTileRect.bottom - 10;
+        
+        clonedFourth.style.left = collisionX + 'px';
+        clonedFourth.style.top = collisionY + 'px';
+        clonedFourth.style.transform = 'scale(1.2) rotate(-10deg)';
+        
+        // Create impact ripple effect at collision point
+        const ripple = document.createElement('div');
+        ripple.style.position = 'fixed';
+        ripple.style.left = collisionX + (clonedFourth.offsetWidth / 2) + 'px';
+        ripple.style.top = collisionY + (clonedFourth.offsetHeight / 2) + 'px';
+        ripple.style.width = '0px';
+        ripple.style.height = '0px';
+        ripple.style.border = '3px solid rgba(168, 85, 247, 0.6)';
+        ripple.style.borderRadius = '50%';
+        ripple.style.transform = 'translate(-50%, -50%)';
+        ripple.style.zIndex = '9999';
+        ripple.style.pointerEvents = 'none';
+        document.body.appendChild(ripple);
+        
+        // Animate ripple
+        setTimeout(() => {
+            ripple.style.transition = 'all 0.4s ease-out';
+            ripple.style.width = '60px';
+            ripple.style.height = '60px';
+            ripple.style.opacity = '0';
+            setTimeout(() => ripple.remove(), 400);
+        }, 10);
+        
+        // Bounce back slightly
+        setTimeout(() => {
+            clonedFourth.style.transition = 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            clonedFourth.style.left = (collisionX - 5) + 'px';
+            clonedFourth.style.top = (collisionY - 3) + 'px';
+            clonedFourth.style.transform = 'scale(1.05) rotate(0deg)';
+        }, 250);
+    }, 1050);
+    
+    // Fade out the cloned tile
+    setTimeout(() => {
+        clonedFourth.style.transition = 'all 0.3s ease-out';
+        clonedFourth.style.opacity = '0';
+        clonedFourth.style.transform = 'scale(0.8)';
+        setTimeout(() => {
+            if (clonedFourth.parentNode) {
+                clonedFourth.remove();
+            }
+        }, 300);
+    }, 1400);
+    
+    // Show "Kong!" text after collision
+    setTimeout(() => {
+        const kongText = document.createElement('div');
+        kongText.className = 'pung-kong-text kong-text';
+        kongText.textContent = 'Kong!';
+        kongText.style.position = 'fixed';
+        kongText.style.left = thirdTileRect.left + (thirdTileRect.width / 2) + 'px';
+        kongText.style.top = thirdTileRect.top - 50 + 'px';
+        kongText.style.transform = 'translateX(-50%) scale(0.3)';
+        kongText.style.opacity = '0';
+        kongText.style.zIndex = '10001';
+        kongText.style.transition = 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        document.body.appendChild(kongText);
+        
+        // Bounce appearance
+        setTimeout(() => {
+            kongText.style.transform = 'translateX(-50%) scale(1.3)';
+            kongText.style.opacity = '1';
+        }, 50);
+        
+        // Scale back
+        setTimeout(() => {
+            kongText.style.transform = 'translateX(-50%) scale(1) translateY(-10px)';
+        }, 450);
+        
+        // Fade out and remove (faster)
+        setTimeout(() => {
+            kongText.style.opacity = '0';
+            kongText.style.transform = 'translateX(-50%) scale(0.9) translateY(-20px)';
+            setTimeout(() => kongText.remove(), 300);
+        }, 1000);
+    }, 1500);
+    
+    // Highlight the melded group
+    setTimeout(() => {
+        meldedGroup.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        meldedGroup.style.transform = 'scale(1.12)';
+        tiles.forEach(tile => {
+            tile.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            tile.style.boxShadow = '0 4px 12px rgba(168, 85, 247, 0.5)';
+        });
+        
+        setTimeout(() => {
+            meldedGroup.style.transform = 'scale(1)';
+            tiles.forEach(tile => {
+                tile.style.boxShadow = '';
+                tile.style.transition = '';
+            });
+            meldedGroup.style.transition = '';
+            if (plusSymbol) {
+                plusSymbol.style.transition = 'opacity 0.3s ease-in';
+                plusSymbol.style.opacity = '1';
+            }
+            exampleVisual.classList.remove('animating');
+        }, 800);
+    }, 1500);
+    
+    // Clean up
+    setTimeout(() => {
+        document.querySelectorAll('.animated-tile').forEach(tile => {
+            if (tile.parentNode) {
+                tile.remove();
+            }
+        });
+    }, 3000);
 }
 
 // Setup Pung and Kong Interactive Effects
