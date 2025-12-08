@@ -657,27 +657,47 @@ function triggerPungAnimation(element) {
     const discardedRect = discardedTile.getBoundingClientRect();
     const meldedRect = meldedGroup.getBoundingClientRect();
     
-    // Create animated tiles
+    // Create animated tiles with staggered timing
     tiles.forEach((tile, index) => {
         const clonedTile = tile.cloneNode(true);
+        const tileRect = tile.getBoundingClientRect();
         clonedTile.style.position = 'fixed';
-        clonedTile.style.left = tile.getBoundingClientRect().left + 'px';
-        clonedTile.style.top = tile.getBoundingClientRect().top + 'px';
+        clonedTile.style.left = tileRect.left + 'px';
+        clonedTile.style.top = tileRect.top + 'px';
         clonedTile.style.width = tile.offsetWidth + 'px';
         clonedTile.style.height = tile.offsetHeight + 'px';
         clonedTile.style.zIndex = '10000';
-        clonedTile.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        clonedTile.style.transform = 'scale(1) rotate(0deg)';
+        clonedTile.style.opacity = '1';
+        clonedTile.style.transition = 'all 0.9s cubic-bezier(0.34, 1.56, 0.64, 1)';
         clonedTile.classList.add('animated-tile');
         document.body.appendChild(clonedTile);
         
+        // Stagger animation for smoother effect
         setTimeout(() => {
-            clonedTile.style.left = meldedRect.left + (index * 50) + 'px';
-            clonedTile.style.top = meldedRect.top + 'px';
-            clonedTile.style.transform = 'scale(1.1) rotate(5deg)';
-        }, 50);
+            const targetX = meldedRect.left + (index * 50);
+            const targetY = meldedRect.top;
+            
+            // Animate through control points for smooth arc
+            clonedTile.style.left = targetX + 'px';
+            clonedTile.style.top = targetY + 'px';
+            clonedTile.style.transform = 'scale(1.15) rotate(' + (5 + index * 2) + 'deg)';
+        }, 30 + (index * 40));
+        
+        // Fade out after reaching destination
+        setTimeout(() => {
+            clonedTile.style.transition = 'all 0.3s ease-out';
+            clonedTile.style.opacity = '0';
+            clonedTile.style.transform = 'scale(0.8)';
+            setTimeout(() => {
+                if (clonedTile.parentNode) {
+                    clonedTile.remove();
+                }
+            }, 300);
+        }, 1030 + (index * 40));
     });
     
-    // Animate discarded tile
+    // Animate discarded tile with smooth arc
     const clonedDiscarded = discardedTile.cloneNode(true);
     clonedDiscarded.style.position = 'fixed';
     clonedDiscarded.style.left = discardedRect.left + 'px';
@@ -685,61 +705,102 @@ function triggerPungAnimation(element) {
     clonedDiscarded.style.width = discardedTile.offsetWidth + 'px';
     clonedDiscarded.style.height = discardedTile.offsetHeight + 'px';
     clonedDiscarded.style.zIndex = '10000';
-    clonedDiscarded.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+    clonedDiscarded.style.transform = 'scale(1) rotate(0deg)';
+    clonedDiscarded.style.opacity = '1';
+    clonedDiscarded.style.transition = 'all 0.9s cubic-bezier(0.34, 1.56, 0.64, 1)';
     clonedDiscarded.classList.add('animated-tile');
     document.body.appendChild(clonedDiscarded);
     
     setTimeout(() => {
-        clonedDiscarded.style.left = meldedRect.left + (tiles.length * 50) + 'px';
-        clonedDiscarded.style.top = meldedRect.top + 'px';
-        clonedDiscarded.style.transform = 'scale(1.1) rotate(-5deg)';
-    }, 50);
+        const targetX = meldedRect.left + (tiles.length * 50);
+        const targetY = meldedRect.top;
+        
+        clonedDiscarded.style.left = targetX + 'px';
+        clonedDiscarded.style.top = targetY + 'px';
+        clonedDiscarded.style.transform = 'scale(1.15) rotate(-8deg)';
+    }, 150);
     
-    // Show "Pung!" text
+    // Fade out discarded tile after reaching destination
+    setTimeout(() => {
+        clonedDiscarded.style.transition = 'all 0.3s ease-out';
+        clonedDiscarded.style.opacity = '0';
+        clonedDiscarded.style.transform = 'scale(0.8)';
+        setTimeout(() => {
+            if (clonedDiscarded.parentNode) {
+                clonedDiscarded.remove();
+            }
+        }, 300);
+    }, 1050);
+    
+    // Show "Pung!" text with smooth animation (after tiles disappear)
     setTimeout(() => {
         const pungText = document.createElement('div');
         pungText.className = 'pung-kong-text pung-text';
         pungText.textContent = 'Pung!';
         pungText.style.position = 'fixed';
-        pungText.style.left = meldedRect.right + 20 + 'px';
-        pungText.style.top = meldedRect.top + 'px';
+        pungText.style.left = meldedRect.left + (meldedRect.width / 2) + 'px';
+        pungText.style.top = meldedRect.top - 40 + 'px';
+        pungText.style.transform = 'translateX(-50%) scale(0.5)';
+        pungText.style.opacity = '0';
         pungText.style.zIndex = '10001';
+        pungText.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
         document.body.appendChild(pungText);
         
-        // Animate text appearance
+        // Animate text appearance with bounce
         setTimeout(() => {
-            pungText.style.transform = 'scale(1.2)';
+            pungText.style.transform = 'translateX(-50%) scale(1.2)';
             pungText.style.opacity = '1';
         }, 50);
         
-        // Remove text and cloned tiles
+        // Scale back and fade out
+        setTimeout(() => {
+            pungText.style.transform = 'translateX(-50%) scale(1) translateY(-15px)';
+        }, 400);
+        
+        // Remove text
         setTimeout(() => {
             pungText.style.opacity = '0';
-            pungText.style.transform = 'scale(0.8) translateY(-20px)';
-            setTimeout(() => pungText.remove(), 300);
+            pungText.style.transform = 'translateX(-50%) scale(0.9) translateY(-25px)';
+            setTimeout(() => pungText.remove(), 500);
         }, 2000);
-    }, 650);
+    }, 1400);
     
-    // Highlight melded group
+    // Highlight melded group with smooth transition (after tiles disappear)
     setTimeout(() => {
+        meldedGroup.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
         meldedGroup.style.transform = 'scale(1.15)';
         meldedGroup.style.boxShadow = '0 8px 24px rgba(88, 204, 2, 0.6)';
         meldedGroup.style.border = '3px solid #58cc02';
         
         setTimeout(() => {
-            meldedGroup.style.transform = '';
-            meldedGroup.style.boxShadow = '';
-            meldedGroup.style.border = '';
-        }, 800);
-    }, 650);
+            meldedGroup.style.transform = 'scale(1)';
+            meldedGroup.style.boxShadow = '0 4px 12px rgba(88, 204, 2, 0.3)';
+            setTimeout(() => {
+                meldedGroup.style.transform = '';
+                meldedGroup.style.boxShadow = '';
+                meldedGroup.style.border = '';
+                meldedGroup.style.transition = '';
+            }, 400);
+        }, 600);
+    }, 1400);
     
-    // Clean up cloned tiles
+    // Clean up cloned tiles (they should already be removed from fade out)
     setTimeout(() => {
-        document.querySelectorAll('.animated-tile').forEach(tile => tile.remove());
-        if (plus) plus.style.opacity = '1';
-        if (equals) equals.style.opacity = '1';
+        document.querySelectorAll('.animated-tile').forEach(tile => {
+            if (tile.parentNode) {
+                tile.remove();
+            }
+        });
+        if (plus) {
+            plus.style.transition = 'opacity 0.3s ease-in';
+            plus.style.opacity = '1';
+        }
+        if (equals) {
+            equals.style.transition = 'opacity 0.3s ease-in';
+            equals.style.opacity = '1';
+        }
         exampleVisual.classList.remove('animating');
-    }, 1200);
+    }, 3800);
 }
 
 // Kong Animation Effect
@@ -899,5 +960,3 @@ function setupPungKongInteractions() {
         }
     });
 }
-
-
