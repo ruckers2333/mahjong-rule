@@ -1,0 +1,903 @@
+// Smooth Scroll Function
+function scrollToSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        const headerHeight = document.querySelector('.header').offsetHeight;
+        const progressHeight = document.querySelector('.progress-container').offsetHeight;
+        const offset = headerHeight + progressHeight;
+        const targetPosition = section.offsetTop - offset;
+        
+        window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+        });
+    }
+}
+
+// Scroll to Top Function
+function scrollToTop() {
+    const backToTop = document.getElementById('backToTop');
+    if (!backToTop) return;
+    
+    // 清除所有之前的隐藏定时器
+    if (backToTopTimeout) {
+        clearTimeout(backToTopTimeout);
+        backToTopTimeout = null;
+    }
+    
+    // 标记用户点击了回到顶部按钮
+    // 这个标记会让按钮在顶部保持可见，直到用户向下滚动超过300px
+    userClickedBackToTop = true;
+    isScrollingToTop = true;
+    maxScrollAfterClick = 0; // 重置最大滚动位置
+    
+    // 立即强制显示按钮，并确保按钮位置在右下角
+    backToTop.classList.add('visible');
+    // 确保按钮位置始终在右下角（防止任何代码改变位置）
+    backToTop.style.position = 'fixed';
+    backToTop.style.bottom = '30px';
+    backToTop.style.right = '30px';
+    backToTop.style.left = 'auto';
+    backToTop.style.top = 'auto';
+    
+    // 执行平滑滚动到顶部
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+    
+    // 滚动完成后清除滚动标记（但保持 userClickedBackToTop 标记）
+    // 按钮会在顶部保持可见，直到用户向下滚动超过300px
+    setTimeout(() => {
+        isScrollingToTop = false;
+        maxScrollAfterClick = 0; // 滚动完成后重置最大滚动位置，从顶部开始计算
+        // 确保按钮仍然可见且位置正确
+        if (backToTop) {
+            backToTop.classList.add('visible');
+            // 再次确保按钮位置在右下角
+            backToTop.style.position = 'fixed';
+            backToTop.style.bottom = '30px';
+            backToTop.style.right = '30px';
+            backToTop.style.left = 'auto';
+            backToTop.style.top = 'auto';
+        }
+    }, 800); // 等待滚动动画完成
+}
+
+// Setup Claim Card Click Handlers
+function setupClaimCardHandlers() {
+    const claimCards = document.querySelectorAll('.claim-card');
+    claimCards.forEach(card => {
+        const header = card.querySelector('.claim-header');
+        if (header) {
+            // 只在点击header时触发展开/收起
+            header.style.cursor = 'pointer';
+            header.addEventListener('click', function(e) {
+                e.stopPropagation();
+                card.classList.toggle('expanded');
+            });
+            
+            // 阻止内容区域的点击事件冒泡
+            const content = card.querySelector('.claim-content');
+            if (content) {
+                content.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
+        }
+    });
+}
+
+// Update Progress Bar
+function updateProgressBar() {
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight - windowHeight;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const progress = (scrollTop / documentHeight) * 100;
+    
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) {
+        progressBar.style.width = progress + '%';
+    }
+}
+
+// Check Section Visibility
+function checkSectionVisibility() {
+    const sections = document.querySelectorAll('.section');
+    const windowHeight = window.innerHeight;
+    const triggerPoint = windowHeight * 0.7;
+    
+    sections.forEach(section => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top < triggerPoint && rect.bottom > 0) {
+            section.classList.add('visible');
+        }
+    });
+}
+
+// Show/Hide Back to Top Button
+let backToTopTimeout = null;
+let isScrollingToTop = false; // 标记是否正在滚动到顶部
+let userClickedBackToTop = false; // 标记用户是否点击过回到顶部按钮
+let maxScrollAfterClick = 0; // 记录点击按钮后的最大滚动位置
+
+function toggleBackToTop() {
+    const backToTop = document.getElementById('backToTop');
+    if (!backToTop) return;
+    
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // 清除之前的定时器
+    if (backToTopTimeout) {
+        clearTimeout(backToTopTimeout);
+        backToTopTimeout = null;
+    }
+    
+    // 如果正在滚动到顶部，强制显示按钮
+    if (isScrollingToTop) {
+        backToTop.classList.add('visible');
+        // 确保按钮位置在右下角
+        backToTop.style.position = 'fixed';
+        backToTop.style.bottom = '30px';
+        backToTop.style.right = '30px';
+        backToTop.style.left = 'auto';
+        return;
+    }
+    
+    // 如果用户点击过回到顶部按钮（且滚动已完成）
+    if (userClickedBackToTop) {
+        // 更新最大滚动位置（只记录向下滚动的最大距离）
+        if (scrollTop > maxScrollAfterClick) {
+            maxScrollAfterClick = scrollTop;
+        }
+        
+        // 如果用户从顶部向下滚动超过300px，清除标记并隐藏按钮
+        if (maxScrollAfterClick > 300) {
+            // 用户明确向下滚动超过300px，清除标记并隐藏按钮
+            userClickedBackToTop = false;
+            maxScrollAfterClick = 0;
+            backToTop.classList.remove('visible');
+        } else {
+            // 在顶部附近（滚动距离小于300px），保持按钮可见
+            backToTop.classList.add('visible');
+            // 确保按钮位置在右下角
+            backToTop.style.position = 'fixed';
+            backToTop.style.bottom = '30px';
+            backToTop.style.right = '30px';
+            backToTop.style.left = 'auto';
+        }
+        return;
+    }
+    
+    // 正常情况：根据滚动位置显示或隐藏
+    if (scrollTop > 300) {
+        // 滚动超过300px，显示按钮
+        backToTop.classList.add('visible');
+        // 确保按钮位置在右下角
+        backToTop.style.position = 'fixed';
+        backToTop.style.bottom = '30px';
+        backToTop.style.right = '30px';
+        backToTop.style.left = 'auto';
+    } else if (scrollTop < 50) {
+        // 在顶部附近，延迟隐藏按钮（只有没有点击过按钮时才隐藏）
+        backToTopTimeout = setTimeout(() => {
+            const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            // 只有在顶部且用户没有点击过按钮时才隐藏
+            if (currentScrollTop < 50 && !userClickedBackToTop) {
+                backToTop.classList.remove('visible');
+            }
+            backToTopTimeout = null;
+        }, 1500); // 延迟1.5秒隐藏
+    }
+}
+
+// Add Tile Click Animation
+function addTileClickAnimation() {
+    const tiles = document.querySelectorAll('.tile');
+    tiles.forEach(tile => {
+        tile.addEventListener('click', function(e) {
+            // 阻止事件冒泡，避免触发父元素的点击事件
+            e.stopPropagation();
+            
+            this.style.transform = 'translateY(-12px) scale(1.15) rotate(5deg)';
+            this.style.transition = 'all 0.3s ease';
+            
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 300);
+        });
+    });
+}
+
+// Add Interactive Tile Hover Effects
+function addTileHoverEffects() {
+    const tiles = document.querySelectorAll('.tile');
+    tiles.forEach(tile => {
+        tile.addEventListener('mouseenter', function() {
+            // Add ripple effect
+            const ripple = document.createElement('div');
+            ripple.style.position = 'absolute';
+            ripple.style.width = '100%';
+            ripple.style.height = '100%';
+            ripple.style.borderRadius = '8px';
+            ripple.style.background = 'rgba(28, 176, 246, 0.2)';
+            ripple.style.top = '0';
+            ripple.style.left = '0';
+            ripple.style.animation = 'ripple 0.6s ease-out';
+            ripple.style.pointerEvents = 'none';
+            
+            this.style.position = 'relative';
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+}
+
+// Add Ripple Animation Keyframes
+function addRippleAnimation() {
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes ripple {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Add Card Flip Animation
+function addCardFlipAnimation() {
+    const cards = document.querySelectorAll('.tip-card, .step-card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+        });
+    });
+}
+
+// Add Navigation Active State
+function updateActiveNavLink() {
+    const sections = document.querySelectorAll('.section');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const windowHeight = window.innerHeight;
+    const scrollPosition = window.pageYOffset + windowHeight / 2;
+    
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionBottom = sectionTop + section.offsetHeight;
+        const sectionId = section.getAttribute('id');
+        
+        if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${sectionId}`) {
+                    link.classList.add('active');
+                }
+            });
+        }
+    });
+}
+
+// Add Active State CSS for Nav Links
+function addActiveNavStyle() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.3);
+            font-weight: 700;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Add Parallax Effect to Hero Section
+function addParallaxEffect() {
+    const hero = document.querySelector('.hero');
+    if (hero) {
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const heroContent = hero.querySelector('.hero-content');
+            if (heroContent && scrolled < hero.offsetHeight) {
+                heroContent.style.transform = `translateY(${scrolled * 0.5}px)`;
+                heroContent.style.opacity = 1 - (scrolled / hero.offsetHeight) * 0.5;
+            }
+        });
+    }
+}
+
+// Add Typing Animation to Hero Title
+function addTypingAnimation() {
+    const heroTitle = document.querySelector('.hero-title');
+    if (heroTitle) {
+        const text = heroTitle.textContent;
+        heroTitle.textContent = '';
+        heroTitle.style.opacity = '1';
+        
+        let i = 0;
+        const typeInterval = setInterval(() => {
+            if (i < text.length) {
+                heroTitle.textContent += text.charAt(i);
+                i++;
+            } else {
+                clearInterval(typeInterval);
+            }
+        }, 100);
+    }
+}
+
+// Add Counter Animation for Numbers
+function animateCounter(element, target, duration = 2000) {
+    let start = 0;
+    const increment = target / (duration / 16);
+    const timer = setInterval(() => {
+        start += increment;
+        if (start >= target) {
+            element.textContent = target;
+            clearInterval(timer);
+        } else {
+            element.textContent = Math.floor(start);
+        }
+    }, 16);
+}
+
+// Add Intersection Observer for Animations
+function setupIntersectionObserver() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => {
+        observer.observe(section);
+    });
+}
+
+// Add Click Effect to Buttons
+function addButtonClickEffect() {
+    const buttons = document.querySelectorAll('.btn-primary, .back-to-top');
+    buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.style.position = 'absolute';
+            ripple.style.borderRadius = '50%';
+            ripple.style.background = 'rgba(255, 255, 255, 0.5)';
+            ripple.style.transform = 'scale(0)';
+            ripple.style.animation = 'ripple 0.6s ease-out';
+            ripple.style.pointerEvents = 'none';
+            
+            this.style.position = 'relative';
+            this.style.overflow = 'hidden';
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+}
+
+// Add Tile Stack Animation
+function animateTileStack() {
+    const tileStacks = document.querySelectorAll('.tile-stack .tile');
+    tileStacks.forEach((tile, index) => {
+        tile.style.setProperty('--i', index);
+    });
+}
+
+// Add Winning Hand Demo Animation
+function animateWinningHand() {
+    const handGroups = document.querySelectorAll('.hand-group');
+    handGroups.forEach((group, index) => {
+        group.style.opacity = '0';
+        group.style.transform = 'translateY(20px)';
+        group.style.transition = 'all 0.5s ease';
+        
+        setTimeout(() => {
+            group.style.opacity = '1';
+            group.style.transform = 'translateY(0)';
+        }, index * 200);
+    });
+}
+
+// Add Seat Diagram Animation
+function animateSeatDiagram() {
+    const seats = document.querySelectorAll('.seat');
+    seats.forEach((seat, index) => {
+        seat.style.opacity = '0';
+        seat.style.transform = 'scale(0)';
+        seat.style.transition = 'all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+        
+        setTimeout(() => {
+            seat.style.opacity = '1';
+            seat.style.transform = 'scale(1)';
+        }, index * 150);
+    });
+}
+
+// Add Wall Visual Animation
+function animateWallVisual() {
+    const wallSegments = document.querySelectorAll('.wall-segment');
+    wallSegments.forEach((segment, index) => {
+        segment.style.opacity = '0';
+        segment.style.transform = 'translateY(20px)';
+        segment.style.transition = 'all 0.3s ease';
+        
+        setTimeout(() => {
+            segment.style.opacity = '1';
+            segment.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+}
+
+// Initialize All Functions
+// 确保回到顶部按钮位置正确
+function ensureBackToTopPosition() {
+    const backToTop = document.getElementById('backToTop');
+    if (backToTop) {
+        // 强制设置按钮位置在右下角
+        backToTop.style.position = 'fixed';
+        backToTop.style.bottom = '30px';
+        backToTop.style.right = '30px';
+        backToTop.style.left = 'auto';
+        backToTop.style.top = 'auto';
+        backToTop.style.margin = '0';
+    }
+}
+
+function init() {
+    // 首先确保回到顶部按钮位置正确
+    ensureBackToTopPosition();
+    
+    // Add ripple animation
+    addRippleAnimation();
+    
+    // Add active nav style
+    addActiveNavStyle();
+    
+    // Setup intersection observer
+    setupIntersectionObserver();
+    
+    // 注意：滚动事件监听器在代码后面统一设置（优化版本）
+    // 不需要在这里重复添加
+    
+    // Add tile interactions
+    addTileClickAnimation();
+    addTileHoverEffects();
+    
+    // Setup claim card handlers (must be after tile click animation)
+    setupClaimCardHandlers();
+    
+    // Setup Pung and Kong interactive effects
+    setupPungKongInteractions();
+    
+    // Add card animations
+    addCardFlipAnimation();
+    
+    // Add button effects
+    addButtonClickEffect();
+    
+    // Add parallax effect
+    addParallaxEffect();
+    
+    // Animate elements on load
+    window.addEventListener('load', () => {
+        animateTileStack();
+        animateWinningHand();
+        animateSeatDiagram();
+        animateWallVisual();
+        // 页面加载完成后再次确保按钮位置正确
+        ensureBackToTopPosition();
+    });
+    
+    // Smooth scroll for nav links
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('href').substring(1);
+            scrollToSection(targetId);
+        });
+    });
+    
+    // Initial check
+    checkSectionVisibility();
+    updateProgressBar();
+    toggleBackToTop();
+    
+    // 监听窗口大小变化，确保按钮位置正确
+    window.addEventListener('resize', ensureBackToTopPosition);
+}
+
+// Run initialization when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+
+// Add keyboard navigation
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Home') {
+        scrollToTop();
+    } else if (e.key === 'End') {
+        window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: 'smooth'
+        });
+    }
+});
+
+// Add touch support for mobile
+let touchStartY = 0;
+let touchEndY = 0;
+
+document.addEventListener('touchstart', (e) => {
+    touchStartY = e.changedTouches[0].screenY;
+});
+
+document.addEventListener('touchend', (e) => {
+    touchEndY = e.changedTouches[0].screenY;
+    handleSwipe();
+});
+
+function handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = touchStartY - touchEndY;
+    
+    if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+            // Swipe up - scroll down
+            window.scrollBy({
+                top: 300,
+                behavior: 'smooth'
+            });
+        } else {
+            // Swipe down - scroll up
+            window.scrollBy({
+                top: -300,
+                behavior: 'smooth'
+            });
+        }
+    }
+}
+
+// Add performance optimization
+let ticking = false;
+
+function optimizedScrollHandler() {
+    updateProgressBar();
+    checkSectionVisibility();
+    toggleBackToTop();
+    updateActiveNavLink();
+    ticking = false;
+}
+
+window.addEventListener('scroll', () => {
+    if (!ticking) {
+        window.requestAnimationFrame(optimizedScrollHandler);
+        ticking = true;
+    }
+});
+
+// Add accessibility improvements
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+        document.body.classList.add('keyboard-navigation');
+    }
+});
+
+document.addEventListener('mousedown', () => {
+    document.body.classList.remove('keyboard-navigation');
+});
+
+// Add focus styles for accessibility
+const style = document.createElement('style');
+style.textContent = `
+    .keyboard-navigation *:focus {
+        outline: 3px solid var(--primary-blue);
+        outline-offset: 2px;
+    }
+`;
+document.head.appendChild(style);
+
+// ========== Interactive Pung and Kong Effects ==========
+
+// Pung Animation Effect
+function triggerPungAnimation(element) {
+    const exampleVisual = element.closest('.example-visual');
+    if (!exampleVisual) return;
+    
+    // Prevent multiple clicks during animation
+    if (exampleVisual.classList.contains('animating')) return;
+    exampleVisual.classList.add('animating');
+    
+    const tilesInHand = exampleVisual.querySelector('.tiles-in-hand');
+    const discardedTile = exampleVisual.querySelector('.tile-img-container.discarded') || element;
+    const meldedGroup = exampleVisual.querySelector('.melded-group');
+    
+    if (!tilesInHand || !discardedTile || !meldedGroup) {
+        exampleVisual.classList.remove('animating');
+        return;
+    }
+    
+    // Hide plus and equals symbols
+    const plus = exampleVisual.querySelector('.plus');
+    const equals = exampleVisual.querySelector('.equals');
+    if (plus) plus.style.opacity = '0';
+    if (equals) equals.style.opacity = '0';
+    
+    // Animate tiles moving together
+    const tiles = tilesInHand.querySelectorAll('.tile-img-container');
+    const discardedRect = discardedTile.getBoundingClientRect();
+    const meldedRect = meldedGroup.getBoundingClientRect();
+    
+    // Create animated tiles
+    tiles.forEach((tile, index) => {
+        const clonedTile = tile.cloneNode(true);
+        clonedTile.style.position = 'fixed';
+        clonedTile.style.left = tile.getBoundingClientRect().left + 'px';
+        clonedTile.style.top = tile.getBoundingClientRect().top + 'px';
+        clonedTile.style.width = tile.offsetWidth + 'px';
+        clonedTile.style.height = tile.offsetHeight + 'px';
+        clonedTile.style.zIndex = '10000';
+        clonedTile.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        clonedTile.classList.add('animated-tile');
+        document.body.appendChild(clonedTile);
+        
+        setTimeout(() => {
+            clonedTile.style.left = meldedRect.left + (index * 50) + 'px';
+            clonedTile.style.top = meldedRect.top + 'px';
+            clonedTile.style.transform = 'scale(1.1) rotate(5deg)';
+        }, 50);
+    });
+    
+    // Animate discarded tile
+    const clonedDiscarded = discardedTile.cloneNode(true);
+    clonedDiscarded.style.position = 'fixed';
+    clonedDiscarded.style.left = discardedRect.left + 'px';
+    clonedDiscarded.style.top = discardedRect.top + 'px';
+    clonedDiscarded.style.width = discardedTile.offsetWidth + 'px';
+    clonedDiscarded.style.height = discardedTile.offsetHeight + 'px';
+    clonedDiscarded.style.zIndex = '10000';
+    clonedDiscarded.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+    clonedDiscarded.classList.add('animated-tile');
+    document.body.appendChild(clonedDiscarded);
+    
+    setTimeout(() => {
+        clonedDiscarded.style.left = meldedRect.left + (tiles.length * 50) + 'px';
+        clonedDiscarded.style.top = meldedRect.top + 'px';
+        clonedDiscarded.style.transform = 'scale(1.1) rotate(-5deg)';
+    }, 50);
+    
+    // Show "Pung!" text
+    setTimeout(() => {
+        const pungText = document.createElement('div');
+        pungText.className = 'pung-kong-text pung-text';
+        pungText.textContent = 'Pung!';
+        pungText.style.position = 'fixed';
+        pungText.style.left = meldedRect.right + 20 + 'px';
+        pungText.style.top = meldedRect.top + 'px';
+        pungText.style.zIndex = '10001';
+        document.body.appendChild(pungText);
+        
+        // Animate text appearance
+        setTimeout(() => {
+            pungText.style.transform = 'scale(1.2)';
+            pungText.style.opacity = '1';
+        }, 50);
+        
+        // Remove text and cloned tiles
+        setTimeout(() => {
+            pungText.style.opacity = '0';
+            pungText.style.transform = 'scale(0.8) translateY(-20px)';
+            setTimeout(() => pungText.remove(), 300);
+        }, 2000);
+    }, 650);
+    
+    // Highlight melded group
+    setTimeout(() => {
+        meldedGroup.style.transform = 'scale(1.15)';
+        meldedGroup.style.boxShadow = '0 8px 24px rgba(88, 204, 2, 0.6)';
+        meldedGroup.style.border = '3px solid #58cc02';
+        
+        setTimeout(() => {
+            meldedGroup.style.transform = '';
+            meldedGroup.style.boxShadow = '';
+            meldedGroup.style.border = '';
+        }, 800);
+    }, 650);
+    
+    // Clean up cloned tiles
+    setTimeout(() => {
+        document.querySelectorAll('.animated-tile').forEach(tile => tile.remove());
+        if (plus) plus.style.opacity = '1';
+        if (equals) equals.style.opacity = '1';
+        exampleVisual.classList.remove('animating');
+    }, 1200);
+}
+
+// Kong Animation Effect
+function triggerKongAnimation(element) {
+    const exampleVisual = element.closest('.example-visual');
+    const kongTypeCard = element.closest('.kong-type-card');
+    if (!exampleVisual || !kongTypeCard) return;
+    
+    // Prevent multiple clicks
+    if (exampleVisual.classList.contains('animating')) return;
+    exampleVisual.classList.add('animating');
+    
+    const tilesInHand = exampleVisual.querySelector('.tiles-in-hand');
+    const meldedGroup = exampleVisual.querySelector('.melded-group');
+    const discardedTile = exampleVisual.querySelector('.tile.discarded');
+    const lastTile = exampleVisual.querySelector('.tile:last-child');
+    
+    let tilesToAnimate = [];
+    
+    if (tilesInHand) {
+        tilesToAnimate = Array.from(tilesInHand.querySelectorAll('.tile'));
+    } else if (meldedGroup) {
+        tilesToAnimate = Array.from(meldedGroup.querySelectorAll('.tile'));
+    }
+    
+    // Find the clicked tile (fourth tile)
+    const fourthTile = lastTile || discardedTile || tilesToAnimate[tilesToAnimate.length - 1];
+    if (!fourthTile || tilesToAnimate.length < 3) {
+        exampleVisual.classList.remove('animating');
+        return;
+    }
+    
+    // Hide plus symbol
+    const plus = exampleVisual.querySelector('.plus');
+    if (plus) plus.style.opacity = '0';
+    
+    // Get target position (center of the group)
+    const firstTileRect = tilesToAnimate[0].getBoundingClientRect();
+    const targetX = firstTileRect.left;
+    const targetY = firstTileRect.top;
+    
+    // Animate fourth tile moving to join the group
+    const fourthRect = fourthTile.getBoundingClientRect();
+    const clonedFourth = fourthTile.cloneNode(true);
+    clonedFourth.style.position = 'fixed';
+    clonedFourth.style.left = fourthRect.left + 'px';
+    clonedFourth.style.top = fourthRect.top + 'px';
+    clonedFourth.style.width = fourthTile.offsetWidth + 'px';
+    clonedFourth.style.height = fourthTile.offsetHeight + 'px';
+    clonedFourth.style.zIndex = '10000';
+    clonedFourth.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+    clonedFourth.classList.add('animated-tile');
+    document.body.appendChild(clonedFourth);
+    
+    setTimeout(() => {
+        clonedFourth.style.left = targetX + (tilesToAnimate.length * 40) + 'px';
+        clonedFourth.style.top = targetY + 'px';
+        clonedFourth.style.transform = 'scale(1.2) rotate(360deg)';
+    }, 50);
+    
+    // Animate existing tiles moving closer together
+    tilesToAnimate.forEach((tile, index) => {
+        tile.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        setTimeout(() => {
+            tile.style.transform = `translateX(${-index * 5}px) scale(1.05)`;
+        }, 50);
+    });
+    
+    // Show "Kong!" text
+    setTimeout(() => {
+        const kongText = document.createElement('div');
+        kongText.className = 'pung-kong-text kong-text';
+        kongText.textContent = 'Kong!';
+        kongText.style.position = 'fixed';
+        kongText.style.left = targetX + (tilesToAnimate.length * 40) + 60 + 'px';
+        kongText.style.top = targetY + 'px';
+        kongText.style.zIndex = '10001';
+        document.body.appendChild(kongText);
+        
+        setTimeout(() => {
+            kongText.style.transform = 'scale(1.3)';
+            kongText.style.opacity = '1';
+        }, 50);
+        
+        setTimeout(() => {
+            kongText.style.opacity = '0';
+            kongText.style.transform = 'scale(0.8) translateY(-20px) rotate(10deg)';
+            setTimeout(() => kongText.remove(), 300);
+        }, 2000);
+    }, 650);
+    
+    // Highlight the entire group
+    setTimeout(() => {
+        const container = tilesInHand || meldedGroup;
+        container.style.transform = 'scale(1.1)';
+        container.style.filter = 'brightness(1.2)';
+        container.style.boxShadow = '0 8px 24px rgba(168, 85, 247, 0.6)';
+        
+        tilesToAnimate.forEach(tile => {
+            tile.style.boxShadow = '0 4px 12px rgba(168, 85, 247, 0.4)';
+        });
+        
+        setTimeout(() => {
+            container.style.transform = '';
+            container.style.filter = '';
+            container.style.boxShadow = '';
+            tilesToAnimate.forEach(tile => {
+                tile.style.transform = '';
+                tile.style.boxShadow = '';
+                tile.style.transition = '';
+            });
+            if (plus) plus.style.opacity = '1';
+            exampleVisual.classList.remove('animating');
+        }, 800);
+    }, 650);
+    
+    // Clean up
+    setTimeout(() => {
+        clonedFourth.remove();
+    }, 1200);
+}
+
+// Setup Pung and Kong Interactive Effects
+function setupPungKongInteractions() {
+    // Setup Pung interaction - look for discarded tile with img container
+    document.querySelectorAll('.example-visual').forEach(visual => {
+        // Check if this is in a Pung claim card
+        const claimCard = visual.closest('.claim-card');
+        if (claimCard && claimCard.querySelector('h4') && claimCard.querySelector('h4').textContent.includes('Pung')) {
+            const discardedTile = visual.querySelector('.tile-img-container.discarded');
+            if (discardedTile) {
+                discardedTile.style.cursor = 'pointer';
+                discardedTile.title = 'Click to see Pung!';
+                discardedTile.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    triggerPungAnimation(discardedTile);
+                });
+            }
+        }
+    });
+    
+    // Setup Kong interactions
+    document.querySelectorAll('.kong-type-card .example-visual').forEach(visual => {
+        // Find the fourth tile - could be discarded tile or last tile
+        const discardedTile = visual.querySelector('.tile-img-container.discarded');
+        const allTiles = visual.querySelectorAll('.tile-img-container');
+        const fourthTile = discardedTile || (allTiles.length > 0 ? allTiles[allTiles.length - 1] : null);
+        
+        if (fourthTile && !fourthTile.closest('.melded-group')) {
+            // Make sure it's not part of the melded group
+            fourthTile.style.cursor = 'pointer';
+            fourthTile.title = 'Click to see Kong!';
+            fourthTile.addEventListener('click', (e) => {
+                e.stopPropagation();
+                triggerKongAnimation(fourthTile);
+            });
+        }
+    });
+}
+
+
