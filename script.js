@@ -1003,6 +1003,16 @@ function triggerExposedKongAnimation(exampleVisual, tilesInHand, discardedTile) 
     const thirdTileRect = thirdTile.getBoundingClientRect();
     const discardedRect = discardedTile.getBoundingClientRect();
     
+    // Ensure original elements remain visible
+    discardedTile.style.opacity = '1';
+    discardedTile.style.visibility = 'visible';
+    tilesInHand.style.opacity = '1';
+    tilesInHand.style.visibility = 'visible';
+    tiles.forEach(tile => {
+        tile.style.opacity = '1';
+        tile.style.visibility = 'visible';
+    });
+    
     // Clone the discarded tile for animation
     const clonedDiscarded = discardedTile.cloneNode(true);
     clonedDiscarded.style.position = 'fixed';
@@ -1014,7 +1024,7 @@ function triggerExposedKongAnimation(exampleVisual, tilesInHand, discardedTile) 
     clonedDiscarded.style.transform = 'scale(1) rotate(0deg)';
     clonedDiscarded.style.opacity = '1';
     clonedDiscarded.style.transition = 'all 1s cubic-bezier(0.34, 1.56, 0.64, 1)';
-    clonedDiscarded.classList.add('animated-tile');
+    clonedDiscarded.classList.add('animated-tile', 'exposed-kong-clone');
     document.body.appendChild(clonedDiscarded);
     
     // Move to top-right corner of third tile (higher position)
@@ -1033,9 +1043,9 @@ function triggerExposedKongAnimation(exampleVisual, tilesInHand, discardedTile) 
         // Create bounce/impact effect
         clonedDiscarded.style.transition = 'all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
         
-        // Move to the right side of third tile (upper-right area)
-        const collisionX = thirdTileRect.right + 8;
-        const collisionY = thirdTileRect.top + 5;
+        // Move to the middle-top side of third tile (中上位置碰一下)
+        const collisionX = thirdTileRect.left + (thirdTileRect.width / 2) - (clonedDiscarded.offsetWidth / 2);
+        const collisionY = thirdTileRect.top - 10;
         
         clonedDiscarded.style.left = collisionX + 'px';
         clonedDiscarded.style.top = collisionY + 'px';
@@ -1138,18 +1148,21 @@ function triggerExposedKongAnimation(exampleVisual, tilesInHand, discardedTile) 
                 plusSymbol.style.transition = 'opacity 0.3s ease-in';
                 plusSymbol.style.opacity = '1';
             }
+            // Ensure original elements remain visible
+            discardedTile.style.opacity = '1';
+            discardedTile.style.visibility = 'visible';
+            tilesInHand.style.opacity = '1';
+            tilesInHand.style.visibility = 'visible';
+            tiles.forEach(tile => {
+                tile.style.opacity = '1';
+                tile.style.visibility = 'visible';
+            });
             exampleVisual.classList.remove('animating');
         }, 800);
     }, 1500);
     
-    // Clean up
-    setTimeout(() => {
-        document.querySelectorAll('.animated-tile').forEach(tile => {
-            if (tile.parentNode) {
-                tile.remove();
-            }
-        });
-    }, 3000);
+    // Clean up - only remove this specific cloned tile (already handled above at line 1455)
+    // The cleanup is done in the separate setTimeout at the end of the function
     
     // Original Kong animation for other cases
     let tilesToAnimate = [];
@@ -1274,6 +1287,16 @@ function triggerAddedKongAnimation(exampleVisual, meldedGroup, fourthTile) {
     const thirdTileRect = thirdTile.getBoundingClientRect();
     const fourthTileRect = fourthTile.getBoundingClientRect();
     
+    // Ensure original elements remain visible
+    fourthTile.style.opacity = '1';
+    fourthTile.style.visibility = 'visible';
+    meldedGroup.style.opacity = '1';
+    meldedGroup.style.visibility = 'visible';
+    tiles.forEach(tile => {
+        tile.style.opacity = '1';
+        tile.style.visibility = 'visible';
+    });
+    
     // Clone the fourth tile for animation
     const clonedFourth = fourthTile.cloneNode(true);
     clonedFourth.style.position = 'fixed';
@@ -1285,7 +1308,7 @@ function triggerAddedKongAnimation(exampleVisual, meldedGroup, fourthTile) {
     clonedFourth.style.transform = 'scale(1) rotate(0deg)';
     clonedFourth.style.opacity = '1';
     clonedFourth.style.transition = 'all 1s cubic-bezier(0.34, 1.56, 0.64, 1)';
-    clonedFourth.classList.add('animated-tile');
+    clonedFourth.classList.add('animated-tile', 'added-kong-clone');
     document.body.appendChild(clonedFourth);
     
     // Move to top-right corner of third tile (higher position)
@@ -1304,9 +1327,9 @@ function triggerAddedKongAnimation(exampleVisual, meldedGroup, fourthTile) {
         // Create bounce/impact effect
         clonedFourth.style.transition = 'all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
         
-        // Move to the bottom-left side of third tile (左下角碰一下)
-        const collisionX = thirdTileRect.left - 8;
-        const collisionY = thirdTileRect.bottom - 10;
+        // Move to the middle-top side of third tile (中上位置碰一下)
+        const collisionX = thirdTileRect.left + (thirdTileRect.width / 2) - (clonedFourth.offsetWidth / 2);
+        const collisionY = thirdTileRect.top - 10;
         
         clonedFourth.style.left = collisionX + 'px';
         clonedFourth.style.top = collisionY + 'px';
@@ -1409,18 +1432,150 @@ function triggerAddedKongAnimation(exampleVisual, meldedGroup, fourthTile) {
                 plusSymbol.style.transition = 'opacity 0.3s ease-in';
                 plusSymbol.style.opacity = '1';
             }
+            // Ensure original elements remain visible
+            meldedGroup.style.opacity = '1';
+            meldedGroup.style.visibility = 'visible';
+            fourthTile.style.opacity = '1';
+            fourthTile.style.visibility = 'visible';
+            tiles.forEach(tile => {
+                tile.style.opacity = '1';
+                tile.style.visibility = 'visible';
+            });
             exampleVisual.classList.remove('animating');
         }, 800);
     }, 1500);
     
-    // Clean up
+    // Clean up - only remove this specific cloned tile (Added Kong)
     setTimeout(() => {
-        document.querySelectorAll('.animated-tile').forEach(tile => {
-            if (tile.parentNode) {
+        if (clonedFourth && clonedFourth.parentNode) {
+            clonedFourth.remove();
+        }
+        // Also clean up any other added-kong-clone elements that might be orphaned
+        document.querySelectorAll('.added-kong-clone').forEach(tile => {
+            if (tile.parentNode === document.body) {
                 tile.remove();
             }
         });
     }, 3000);
+    
+    // Ensure original elements remain visible after animation
+    setTimeout(() => {
+        meldedGroup.style.opacity = '1';
+        meldedGroup.style.visibility = 'visible';
+        fourthTile.style.opacity = '1';
+        fourthTile.style.visibility = 'visible';
+        tiles.forEach(tile => {
+            tile.style.opacity = '1';
+            tile.style.visibility = 'visible';
+        });
+    }, 3000);
+}
+
+// Concealed Kong Animation Effect - Wave animation
+function triggerConcealedKongAnimation(exampleVisual, tiles) {
+    // Prevent multiple clicks
+    if (exampleVisual.classList.contains('animating')) return;
+    exampleVisual.classList.add('animating');
+    
+    const tilesArray = Array.from(tiles);
+    if (tilesArray.length !== 4) {
+        exampleVisual.classList.remove('animating');
+        return;
+    }
+    
+    // Get the center position for text
+    const firstTileRect = tilesArray[0].getBoundingClientRect();
+    const lastTileRect = tilesArray[tilesArray.length - 1].getBoundingClientRect();
+    const centerX = (firstTileRect.left + lastTileRect.right) / 2;
+    const centerY = firstTileRect.top - 50;
+    
+    // Wave animation: each tile moves up and down in sequence with more dynamic effects
+    tilesArray.forEach((tile, index) => {
+        const originalTransform = tile.style.transform || '';
+        const originalTransition = tile.style.transition || '';
+        const originalBoxShadow = tile.style.boxShadow || '';
+        
+        // Set up animation timing - faster for more lively effect
+        const delay = index * 120; // 120ms delay between each tile (faster)
+        
+        // First wave: move up with rotation and scale
+        setTimeout(() => {
+            tile.style.transition = 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            tile.style.transform = 'translateY(-25px) scale(1.2) rotate(-5deg)';
+            tile.style.boxShadow = '0 8px 20px rgba(168, 85, 247, 0.6)';
+            tile.style.zIndex = '10';
+        }, delay);
+        
+        // Bounce back down with opposite rotation
+        setTimeout(() => {
+            tile.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+            tile.style.transform = 'translateY(5px) scale(0.95) rotate(3deg)';
+            tile.style.boxShadow = '0 4px 12px rgba(168, 85, 247, 0.4)';
+        }, delay + 250);
+        
+        // Final return with bounce
+        setTimeout(() => {
+            tile.style.transition = 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            tile.style.transform = 'translateY(0) scale(1) rotate(0deg)';
+            tile.style.boxShadow = originalBoxShadow;
+            tile.style.zIndex = '';
+        }, delay + 550);
+        
+        // Restore original styles after animation
+        setTimeout(() => {
+            tile.style.transform = originalTransform;
+            tile.style.transition = originalTransition;
+            tile.style.boxShadow = originalBoxShadow;
+        }, delay + 800);
+    });
+    
+    // Show "Kong!" text after wave animation starts - more dynamic
+    setTimeout(() => {
+        const kongText = document.createElement('div');
+        kongText.className = 'pung-kong-text kong-text';
+        kongText.textContent = 'Kong!';
+        kongText.style.position = 'fixed';
+        kongText.style.left = centerX + 'px';
+        kongText.style.top = centerY + 'px';
+        kongText.style.transform = 'translateX(-50%) scale(0.2) rotate(-10deg)';
+        kongText.style.opacity = '0';
+        kongText.style.zIndex = '10001';
+        kongText.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        document.body.appendChild(kongText);
+        
+        // Bounce appearance with rotation
+        setTimeout(() => {
+            kongText.style.transform = 'translateX(-50%) scale(1.4) rotate(5deg)';
+            kongText.style.opacity = '1';
+        }, 50);
+        
+        // Scale back with slight rotation
+        setTimeout(() => {
+            kongText.style.transform = 'translateX(-50%) scale(1) rotate(0deg) translateY(-15px)';
+        }, 350);
+        
+        // Slight bounce up
+        setTimeout(() => {
+            kongText.style.transform = 'translateX(-50%) scale(1.05) rotate(-2deg) translateY(-20px)';
+        }, 500);
+        
+        // Final position
+        setTimeout(() => {
+            kongText.style.transform = 'translateX(-50%) scale(1) rotate(0deg) translateY(-15px)';
+        }, 650);
+        
+        // Fade out and remove
+        setTimeout(() => {
+            kongText.style.opacity = '0';
+            kongText.style.transform = 'translateX(-50%) scale(0.9) rotate(5deg) translateY(-25px)';
+            setTimeout(() => kongText.remove(), 300);
+        }, 1800);
+    }, 480);
+    
+    // Reset animating flag after all animations complete
+    setTimeout(() => {
+        exampleVisual.classList.remove('animating');
+    }, 1500);
 }
 
 // Setup Pung and Kong Interactive Effects
@@ -1447,19 +1602,39 @@ function setupPungKongInteractions() {
     
     // Setup Kong interactions
     document.querySelectorAll('.kong-type-card .example-visual').forEach(visual => {
-        // Find the fourth tile - could be discarded tile or last tile
-        const discardedTile = visual.querySelector('.tile-img-container.discarded');
-        const allTiles = visual.querySelectorAll('.tile-img-container');
-        const fourthTile = discardedTile || (allTiles.length > 0 ? allTiles[allTiles.length - 1] : null);
+        const kongTypeCard = visual.closest('.kong-type-card');
+        const kongTitle = kongTypeCard ? kongTypeCard.querySelector('h5') : null;
+        const isConcealedKong = kongTitle && kongTitle.textContent.includes('Concealed Kong');
         
-        if (fourthTile && !fourthTile.closest('.melded-group')) {
-            // Make sure it's not part of the melded group
-            fourthTile.style.cursor = 'pointer';
-            fourthTile.title = 'Click to see Kong!';
-            fourthTile.addEventListener('click', (e) => {
-                e.stopPropagation();
-                triggerKongAnimation(fourthTile);
+        // Check if this is Concealed Kong (has 4 tiles in tiles-in-hand, no discarded tile, no melded-group)
+        const tilesInHand = visual.querySelector('.tiles-in-hand');
+        const discardedTile = visual.querySelector('.tile-img-container.discarded');
+        const meldedGroup = visual.querySelector('.melded-group');
+        const allTiles = visual.querySelectorAll('.tile-img-container');
+        
+        if (isConcealedKong && tilesInHand && !discardedTile && !meldedGroup && allTiles.length === 4) {
+            // Concealed Kong: make all tiles clickable
+            allTiles.forEach(tile => {
+                tile.style.cursor = 'pointer';
+                tile.title = 'Click to see Kong!';
+                tile.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    triggerConcealedKongAnimation(visual, allTiles);
+                });
             });
+        } else {
+            // Other Kong types: find the fourth tile
+            const fourthTile = discardedTile || (allTiles.length > 0 ? allTiles[allTiles.length - 1] : null);
+            
+            if (fourthTile && !fourthTile.closest('.melded-group')) {
+                // Make sure it's not part of the melded group
+                fourthTile.style.cursor = 'pointer';
+                fourthTile.title = 'Click to see Kong!';
+                fourthTile.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    triggerKongAnimation(fourthTile);
+                });
+            }
         }
     });
 }
