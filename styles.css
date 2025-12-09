@@ -1510,6 +1510,29 @@ body {
     background: var(--bg-light);
 }
 
+.modal-body p {
+    font-size: 18px;
+    line-height: 1.8;
+    color: var(--text-light);
+    margin-bottom: 16px;
+}
+
+.modal-body .pung-steps p,
+.modal-body .kong-steps p {
+    font-size: 20px;
+    line-height: 1.8;
+    color: var(--text-dark);
+    margin-bottom: 20px;
+}
+
+.modal-body .kong-types p {
+    font-size: 18px;
+}
+
+.modal-body .kong-note {
+    font-size: 16px;
+}
+
 .modal-body::-webkit-scrollbar {
     width: 8px;
 }
@@ -1743,7 +1766,7 @@ body {
 }
 
 .kong-image-item p {
-    font-size: 14px;
+    font-size: 18px;
     color: var(--text-dark);
     font-weight: 600;
     margin: 0;
