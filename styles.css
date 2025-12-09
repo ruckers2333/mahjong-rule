@@ -439,18 +439,74 @@ body {
     color: var(--text-dark);
 }
 
+.tile-with-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-width: 80px;
+}
+
 .tile-label {
     font-size: 14px;
     color: var(--text-light);
-    margin-top: 12px;
-    display: block;
+    margin: 0;
+    text-align: center;
+    font-weight: 500;
+    white-space: nowrap;
 }
 
 .info-text {
-    margin-top: 16px;
-    font-size: 14px;
-    color: var(--text-light);
-    font-style: italic;
+    margin-top: 32px;
+    font-size: 20px;
+    color: var(--text-dark);
+    font-weight: 700;
+    text-align: center;
+    padding: 20px 32px;
+    background: linear-gradient(135deg, rgba(88, 204, 2, 0.15) 0%, rgba(28, 176, 246, 0.15) 100%);
+    border-radius: var(--radius-lg);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    display: inline-block;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    box-shadow: 0 4px 16px rgba(88, 204, 2, 0.15);
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+}
+
+.info-text::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-blue) 100%);
+    border-radius: var(--radius-lg);
+    padding: 2px;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    z-index: -1;
+    opacity: 0.4;
+    animation: borderGlow 3s ease-in-out infinite;
+}
+
+.info-text:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(88, 204, 2, 0.25);
+}
+
+@keyframes borderGlow {
+    0%, 100% {
+        opacity: 0.4;
+    }
+    50% {
+        opacity: 0.7;
+    }
 }
 
 /* Goal Section */
@@ -1300,6 +1356,186 @@ body {
     font-size: 18px;
 }
 
+.claim-link {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 700;
+    position: relative;
+    transition: all 0.3s ease;
+    padding: 2px 4px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.claim-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-green), var(--primary-blue));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.claim-link:hover {
+    color: var(--primary-green);
+    background: rgba(88, 204, 2, 0.1);
+}
+
+.claim-link:hover::after {
+    transform: scaleX(1);
+}
+
+/* Claim Modal */
+.claim-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.claim-modal.active {
+    pointer-events: all;
+    visibility: visible;
+    opacity: 1;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.claim-modal.active .modal-overlay {
+    opacity: 1;
+}
+
+.modal-content {
+    position: relative;
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 1200px;
+    width: 90%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.claim-modal.active .modal-content {
+    transform: scale(1) translateY(0);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-blue) 100%);
+    color: white;
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+}
+
+.modal-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.modal-icon {
+    font-size: 36px;
+    animation: float 3s ease-in-out infinite;
+}
+
+.modal-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+    color: white;
+}
+
+.modal-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 32px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg) scale(1.1);
+}
+
+.modal-close:active {
+    transform: rotate(90deg) scale(0.95);
+}
+
+.modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px;
+    background: var(--bg-light);
+}
+
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: var(--primary-blue);
+    border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-green);
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-8px) rotate(5deg);
+    }
+}
+
 /* Claim Section */
 .claim-section {
     display: flex;
@@ -1697,6 +1933,23 @@ body {
     .gameplay-step h3,
     .gameplay-step p {
         text-align: left;
+    }
+    
+    .modal-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .modal-header {
+        padding: 20px 24px;
+    }
+    
+    .modal-title {
+        font-size: 24px;
+    }
+    
+    .modal-body {
+        padding: 24px 20px;
     }
 }
 
