@@ -306,7 +306,7 @@ body {
 }
 
 .intro-text {
-    font-size: 19px;
+    font-size: 25px;
     line-height: 1.8;
 }
 
@@ -326,7 +326,7 @@ body {
 }
 
 .category-desc {
-    font-size: 16px;
+    font-size: 18px;
     color: var(--text-light);
     margin-bottom: 24px;
 }
@@ -386,7 +386,7 @@ body {
     bottom: -30px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 12px;
+    font-size: 18px;
     color: var(--text-light);
     opacity: 0;
     transition: var(--transition);
@@ -448,7 +448,7 @@ body {
 }
 
 .tile-label {
-    font-size: 14px;
+    font-size: 18px;
     color: var(--text-light);
     margin: 0;
     text-align: center;
@@ -532,7 +532,7 @@ body {
 }
 
 .formula-constraint {
-    font-size: 16px;
+    font-size: 18px;
     opacity: 0.9;
 }
 
@@ -600,7 +600,7 @@ body {
 }
 
 .hand-label {
-    font-size: 14px;
+    font-size: 18px;
     font-weight: 600;
     color: var(--text-light);
     text-transform: uppercase;
@@ -1535,7 +1535,7 @@ body {
 }
 
 .modal-body .kong-note {
-    font-size: 16px;
+    font-size: 18px;
 }
 
 .modal-body::-webkit-scrollbar {
@@ -1736,7 +1736,7 @@ body {
     background: #fff5e6;
     border-radius: var(--radius-sm);
     border-left: 4px solid var(--primary-orange);
-    font-size: 14px;
+    font-size: 18px;
     line-height: 1.8;
 }
 
@@ -1899,7 +1899,7 @@ body {
     }
     
     .hero-subtitle {
-        font-size: 16px;
+        font-size: 18px;
     }
     
     .section-title {
@@ -1913,7 +1913,7 @@ body {
     
     .nav-link {
         padding: 6px 12px;
-        font-size: 14px;
+        font-size: 18px;
     }
     
     .tiles-row {
@@ -2170,7 +2170,7 @@ body {
 }
 
 .combination-item p {
-    font-size: 14px;
+    font-size: 18px;
     color: var(--text-light);
     margin-bottom: 16px;
     line-height: 1.6;
@@ -2395,7 +2395,7 @@ body {
     color: white;
     padding: 6px 16px;
     border-radius: 20px;
-    font-size: 14px;
+    font-size: 18px;
     font-weight: 600;
     margin-bottom: 16px;
 }
@@ -2642,7 +2642,7 @@ body {
     }
 
     .option-text {
-        font-size: 16px;
+        font-size: 18px;
     }
 
     .option-btn .tile-img-container {
