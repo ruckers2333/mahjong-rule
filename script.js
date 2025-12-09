@@ -80,6 +80,72 @@ function scrollToTop() {
     }, 800); // 等待滚动动画完成
 }
 
+// Setup Claim Modal Handlers
+function setupClaimModalHandlers() {
+    const claimLinks = document.querySelectorAll('.claim-link');
+    const modals = document.querySelectorAll('.claim-modal');
+    const modalOverlays = document.querySelectorAll('.modal-overlay');
+    const closeButtons = document.querySelectorAll('.modal-close');
+    
+    // 打开弹窗
+    claimLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const modalId = this.getAttribute('data-modal');
+            const modal = document.getElementById(modalId);
+            
+            if (modal) {
+                // 关闭其他弹窗
+                modals.forEach(m => {
+                    if (m !== modal) {
+                        m.classList.remove('active');
+                        document.body.style.overflow = '';
+                    }
+                });
+                
+                // 打开目标弹窗
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        });
+    });
+    
+    // 关闭弹窗 - 点击关闭按钮
+    closeButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const modal = btn.closest('.claim-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+    });
+    
+    // 关闭弹窗 - 点击遮罩层
+    modalOverlays.forEach(overlay => {
+        overlay.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const modal = overlay.closest('.claim-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+    });
+    
+    // 关闭弹窗 - ESC键
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            modals.forEach(modal => {
+                modal.classList.remove('active');
+            });
+            document.body.style.overflow = '';
+        }
+    });
+}
+
 // Setup Claim Card Click Handlers
 function setupClaimCardHandlers() {
     const claimCards = document.querySelectorAll('.claim-card');
@@ -549,6 +615,9 @@ function init() {
     
     // Setup claim card handlers (must be after tile click animation)
     setupClaimCardHandlers();
+    
+    // Setup Claim Modal Handlers
+    setupClaimModalHandlers();
     
     // Setup Step Card Click Handlers
     setupStepCardHandlers();
@@ -1358,9 +1427,12 @@ function triggerAddedKongAnimation(exampleVisual, meldedGroup, fourthTile) {
 function setupPungKongInteractions() {
     // Setup Pung interaction - look for discarded tile with img container
     document.querySelectorAll('.example-visual').forEach(visual => {
-        // Check if this is in a Pung claim card
+        // Check if this is in a Pung modal or claim card
+        const pungModal = visual.closest('#pung-modal');
         const claimCard = visual.closest('.claim-card');
-        if (claimCard && claimCard.querySelector('h4') && claimCard.querySelector('h4').textContent.includes('Pung')) {
+        const isPung = pungModal || (claimCard && claimCard.querySelector('h4') && claimCard.querySelector('h4').textContent.includes('Pung'));
+        
+        if (isPung) {
             const discardedTile = visual.querySelector('.tile-img-container.discarded');
             if (discardedTile) {
                 discardedTile.style.cursor = 'pointer';
