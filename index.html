@@ -130,21 +130,40 @@
                             <div class="honor-group">
                                 <h5>Wind Tiles </h5>
                                 <div class="tiles-row">
-                                    <div class="tile-img-container honor-tile" data-tile="wind-east"><img src="tiles/E.png" alt="🀀" class="tile-img"></div>
-                                    <div class="tile-img-container honor-tile" data-tile="wind-south"><img src="tiles/S.png" alt="🀁" class="tile-img"></div>
-                                    <div class="tile-img-container honor-tile" data-tile="wind-west"><img src="tiles/W.png" alt="🀂" class="tile-img"></div>
-                                    <div class="tile-img-container honor-tile" data-tile="wind-north"><img src="tiles/N.png" alt="🀃" class="tile-img"></div>
+                                    <div class="tile-with-label">
+                                        <div class="tile-img-container honor-tile" data-tile="wind-east"><img src="tiles/E.png" alt="🀀" class="tile-img"></div>
+                                        <p class="tile-label">East</p>
+                                    </div>
+                                    <div class="tile-with-label">
+                                        <div class="tile-img-container honor-tile" data-tile="wind-south"><img src="tiles/S.png" alt="🀁" class="tile-img"></div>
+                                        <p class="tile-label">South</p>
+                                    </div>
+                                    <div class="tile-with-label">
+                                        <div class="tile-img-container honor-tile" data-tile="wind-west"><img src="tiles/W.png" alt="🀂" class="tile-img"></div>
+                                        <p class="tile-label">West</p>
+                                    </div>
+                                    <div class="tile-with-label">
+                                        <div class="tile-img-container honor-tile" data-tile="wind-north"><img src="tiles/N.png" alt="🀃" class="tile-img"></div>
+                                        <p class="tile-label">North</p>
+                                    </div>
                                 </div>
-                                <p class="tile-label">East, South, West, North</p>
                             </div>
                             <div class="honor-group">
                                 <h5>Dragon Tiles</h5>
                                 <div class="tiles-row">
-                                    <div class="tile-img-container honor-tile special" data-tile="dragon-red"><img src="tiles/R.png" alt="🀄" class="tile-img"></div>
-                                    <div class="tile-img-container honor-tile" data-tile="dragon-green"><img src="tiles/F.png" alt="🀅" class="tile-img"></div>
-                                    <div class="tile-img-container honor-tile" data-tile="dragon-white"><img src="tiles/WH.png" alt="🀆" class="tile-img"></div>
+                                    <div class="tile-with-label">
+                                        <div class="tile-img-container honor-tile special" data-tile="dragon-red"><img src="tiles/R.png" alt="🀄" class="tile-img"></div>
+                                        <p class="tile-label">Red dragon</p>
+                                    </div>
+                                    <div class="tile-with-label">
+                                        <div class="tile-img-container honor-tile" data-tile="dragon-green"><img src="tiles/F.png" alt="🀅" class="tile-img"></div>
+                                        <p class="tile-label">Green dragon</p>
+                                    </div>
+                                    <div class="tile-with-label">
+                                        <div class="tile-img-container honor-tile" data-tile="dragon-white"><img src="tiles/WH.png" alt="🀆" class="tile-img"></div>
+                                        <p class="tile-label">White dragon</p>
+                                    </div>
                                 </div>
-                                <p class="tile-label">Red dragon , Green dragon , White dragon </p>
                             </div>
                         </div>
                         <p class="info-text">Each Honor has four tiles</p>
@@ -434,120 +453,13 @@
                                 <p>If you don't win, choose 1 unwanted tile and discard it face-up. After discarding, there are two possibilities:</p>
                                 <ul style="margin-top: 12px; text-align: left;">
                                     <li>If no other players wish to "claim" the discarded tile, the turn proceeds to the next player (back to Step 1: Draw a Tile).</li>
-                                    <li>If any player wants to claim the discarded tile to form a Pung or Kong, they must declare it immediately — the turn pauses to resolve the claim first.</li>
+                                    <li>If any player wants to claim the discarded tile to form a <a href="#" class="claim-link" data-modal="pung-modal">Pung</a> or <a href="#" class="claim-link" data-modal="kong-modal">Kong</a>, they must declare it immediately — the turn pauses to resolve the claim first.</li>
                                 </ul>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="card">
-                    <h3 class="card-title">Claiming Discarded Tiles</h3>
-                    
-                    <div class="claim-section">
-                        <div class="claim-card">
-                            <div class="claim-header">
-                                <div class="claim-icon">🀄</div>
-                                <h4>Pung</h4>
-                                <span class="expand-icon">▼</span>
-                            </div>
-                            <div class="claim-content">
-                                <div class="pung-steps">
-                                    <p><strong>01 Declaration:</strong> If the discarded tile is identical to any players' pair, the player can declare Pung.</p>
-                                    <p><strong>02 Combination:</strong> Take that tile and combine it with their pair to form a set of three identical tiles.</p>
-                                    <p><strong>03 Discard:</strong> Discard one tile from their hand. If no one claims the newly discarded tile, the turn passes to the player sitting anticlockwise next to the Pung declarer — this player will return to Step 1: draw a tile.</p>
-                                </div>
-                                <div class="example-visual">
-                                    <div class="tiles-in-hand">
-                                        <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
-                                        <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
-                                    </div>
-                                    <span class="plus">+</span>
-                                    <div class="tile-img-container discarded"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
-                                    <span class="equals">=</span>
-                                    <div class="melded-group">
-                                        <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
-                                        <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
-                                        <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
-                                    </div>
-                                </div>
-                                <p style="margin-top: 16px; font-size: 14px; color: #666;"><em>💡 Tip: Click on the discarded tile (dashed border) to see the animation!</em></p>
-                            </div>
-                        </div>
-
-                        <div class="claim-card">
-                            <div class="claim-header">
-                                <div class="claim-icon">🀄</div>
-                                <h4>Kong</h4>
-                                <span class="expand-icon">▼</span>
-                            </div>
-                            <div class="claim-content">
-                                <div class="kong-steps">
-                                    <p><strong>01 Declaration:</strong> If the discarded tile is identical to any players' triplet, the player can declare Kong.</p>
-                                    <p><strong>02 Combination:</strong> Take that tile and combine it with their triplet to form a set of four identical tiles.</p>
-                                    <p><strong>03 Draw:</strong> Regardless of the type of Kong declared, the player must draw a tile from the end of the wall, and then check for a win.</p>
-                                    <p><strong>04 Discard:</strong> If the player doesn’t win, the player must discard one unwanted tile from their hand. If no one claims the newly discarded tile, the turn passes to the player sitting anticlockwise next to the Kong declarer — this player will return to Step 1: draw a tile.</p>
-                                </div>
-                                <p style="margin-top: 16px;"><strong>This is called an exposed Kong.</strong> There are two other types of Kong: concealed Kong, and added Kong.</p>
-                                
-                                <div class="kong-types">
-                                    <div class="kong-type-card">
-                                        <h5>Exposed Kong</h5>
-                                        <p>When a player holds three identical tiles and another player discards the fourth matching tile.</p>
-                                        <div class="example-visual">
-                                            <div class="tiles-in-hand">
-                                                <div class="tile-img-container"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
-                                                <div class="tile-img-container"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
-                                                <div class="tile-img-container"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
-                                            </div>
-                                            <span class="plus">+</span>
-                                            <div class="tile-img-container discarded"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
-                                        </div>
-                                    </div>
-                                    <div class="kong-type-card">
-                                        <h5>Concealed Kong</h5>
-                                        <p>When a player draws all four identical tiles on their own, either at the start of the game or over multiple turns.</p>
-                                        <div class="example-visual">
-                                            <div class="tiles-in-hand">
-                                                <div class="tile-img-container"><img src="tiles/B1.png" alt="🀐" class="tile-img"></div>
-                                                <div class="tile-img-container"><img src="tiles/B1.png" alt="🀐" class="tile-img"></div>
-                                                <div class="tile-img-container"><img src="tiles/B1.png" alt="🀐" class="tile-img"></div>
-                                                <div class="tile-img-container"><img src="tiles/B1.png" alt="🀐" class="tile-img"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="kong-type-card">
-                                        <h5>Added Kong</h5>
-                                        <p>When a player has already declared a Pung and later draws the fourth matching tile.</p>
-                                        <div class="example-visual">
-                                            <div class="melded-group">
-                                                <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
-                                                <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
-                                                <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
-                                            </div>
-                                            <span class="plus">+</span>
-                                            <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="kong-note" style="margin-top: 24px;">
-                                    <strong>Note:</strong> After declaring a Pung or Kong, the involved tiles should be placed in the lower-right corner of the table, which can no longer be discarded and are not included to form a winning hand.
-                                </div>
-                                <div class="kong-image-group">
-                                    <div class="kong-image-item">
-                                        <img src="pung1.png" alt="Exposed Kong and Added Kong">
-                                        <p>Exposed Kong and Added Kong</p>
-                                    </div>
-                                    <div class="kong-image-item">
-                                        <img src="pung2.png" alt="Concealed Kong">
-                                        <p>Concealed Kong</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </section>
 
@@ -593,6 +505,120 @@
 
     <!-- Back to Top Button -->
     <button class="back-to-top" id="backToTop" onclick="scrollToTop()">↑</button>
+
+    <!-- Pung Modal -->
+    <div class="claim-modal" id="pung-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-wrapper">
+                    <div class="modal-icon">🀄</div>
+                    <h3 class="modal-title">Pung</h3>
+                </div>
+                <button class="modal-close" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="pung-steps">
+                    <p><strong>01 Declaration:</strong> If the discarded tile is identical to any players' pair, the player can declare Pung.</p>
+                    <p><strong>02 Combination:</strong> Take that tile and combine it with their pair to form a set of three identical tiles.</p>
+                    <p><strong>03 Discard:</strong> Discard one tile from their hand. If no one claims the newly discarded tile, the turn passes to the player sitting anticlockwise next to the Pung declarer — this player will return to Step 1: draw a tile.</p>
+                </div>
+                <div class="example-visual">
+                    <div class="tiles-in-hand">
+                        <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
+                        <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
+                    </div>
+                    <span class="plus">+</span>
+                    <div class="tile-img-container discarded"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
+                    <span class="equals">=</span>
+                    <div class="melded-group">
+                        <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
+                        <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
+                        <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
+                    </div>
+                </div>
+                <p style="margin-top: 16px; font-size: 14px; color: #666;"><em>💡 Tip: Click on the discarded tile (dashed border) to see the animation!</em></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kong Modal -->
+    <div class="claim-modal" id="kong-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-wrapper">
+                    <div class="modal-icon">🀄</div>
+                    <h3 class="modal-title">Kong</h3>
+                </div>
+                <button class="modal-close" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="kong-steps">
+                    <p><strong>01 Declaration:</strong> If the discarded tile is identical to any players' triplet, the player can declare Kong.</p>
+                    <p><strong>02 Combination:</strong> Take that tile and combine it with their triplet to form a set of four identical tiles.</p>
+                    <p><strong>03 Draw:</strong> Regardless of the type of Kong declared, the player must draw a tile from the end of the wall, and then check for a win.</p>
+                    <p><strong>04 Discard:</strong> If the player doesn't win, the player must discard one unwanted tile from their hand. If no one claims the newly discarded tile, the turn passes to the player sitting anticlockwise next to the Kong declarer — this player will return to Step 1: draw a tile.</p>
+                </div>
+                <p style="margin-top: 16px;"><strong>This is called an exposed Kong.</strong> There are two other types of Kong: concealed Kong, and added Kong.</p>
+                
+                <div class="kong-types">
+                    <div class="kong-type-card">
+                        <h5>Exposed Kong</h5>
+                        <p>When a player holds three identical tiles and another player discards the fourth matching tile.</p>
+                        <div class="example-visual">
+                            <div class="tiles-in-hand">
+                                <div class="tile-img-container"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
+                                <div class="tile-img-container"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
+                                <div class="tile-img-container"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
+                            </div>
+                            <span class="plus">+</span>
+                            <div class="tile-img-container discarded"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
+                        </div>
+                    </div>
+                    <div class="kong-type-card">
+                        <h5>Concealed Kong</h5>
+                        <p>When a player draws all four identical tiles on their own, either at the start of the game or over multiple turns.</p>
+                        <div class="example-visual">
+                            <div class="tiles-in-hand">
+                                <div class="tile-img-container"><img src="tiles/B1.png" alt="🀐" class="tile-img"></div>
+                                <div class="tile-img-container"><img src="tiles/B1.png" alt="🀐" class="tile-img"></div>
+                                <div class="tile-img-container"><img src="tiles/B1.png" alt="🀐" class="tile-img"></div>
+                                <div class="tile-img-container"><img src="tiles/B1.png" alt="🀐" class="tile-img"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="kong-type-card">
+                        <h5>Added Kong</h5>
+                        <p>When a player has already declared a Pung and later draws the fourth matching tile.</p>
+                        <div class="example-visual">
+                            <div class="melded-group">
+                                <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
+                                <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
+                                <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
+                            </div>
+                            <span class="plus">+</span>
+                            <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="kong-note" style="margin-top: 24px;">
+                    <strong>Note:</strong> After declaring a Pung or Kong, the involved tiles should be placed in the lower-right corner of the table, which can no longer be discarded and are not included to form a winning hand.
+                </div>
+                <div class="kong-image-group">
+                    <div class="kong-image-item">
+                        <img src="pung1.png" alt="Exposed Kong and Added Kong">
+                        <p>Exposed Kong and Added Kong</p>
+                    </div>
+                    <div class="kong-image-item">
+                        <img src="pung2.png" alt="Concealed Kong">
+                        <p>Concealed Kong</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
