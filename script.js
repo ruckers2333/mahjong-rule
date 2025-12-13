@@ -386,12 +386,39 @@ function addCardFlipAnimation() {
     });
 }
 
+// Update Navigation Indicator Position
+function updateNavIndicator() {
+    const indicator = document.querySelector('.nav-indicator');
+    const activeLink = document.querySelector('.nav-link.active');
+    const nav = document.querySelector('.nav');
+    
+    if (!indicator || !nav) return;
+    
+    if (activeLink) {
+        const navRect = nav.getBoundingClientRect();
+        const linkRect = activeLink.getBoundingClientRect();
+        
+        // Calculate position relative to nav container
+        const left = linkRect.left - navRect.left;
+        const width = linkRect.width;
+        
+        // Update indicator position with smooth animation
+        indicator.style.left = `${left}px`;
+        indicator.style.width = `${width}px`;
+        indicator.style.opacity = '1';
+    } else {
+        // Hide indicator if no active link
+        indicator.style.opacity = '0';
+    }
+}
+
 // Add Navigation Active State
 function updateActiveNavLink() {
     const sections = document.querySelectorAll('.section');
     const navLinks = document.querySelectorAll('.nav-link');
     const windowHeight = window.innerHeight;
     const scrollPosition = window.pageYOffset + windowHeight / 2;
+    let activeFound = false;
     
     sections.forEach(section => {
         const sectionTop = section.offsetTop;
@@ -403,22 +430,30 @@ function updateActiveNavLink() {
                 link.classList.remove('active');
                 if (link.getAttribute('href') === `#${sectionId}`) {
                     link.classList.add('active');
+                    activeFound = true;
                 }
             });
         }
     });
+    
+    // If no section is active, check if we're at the top (Introduction)
+    if (!activeFound && scrollPosition < sections[0]?.offsetTop) {
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#intro') {
+                link.classList.add('active');
+            }
+        });
+    }
+    
+    // Update indicator position after active link is determined
+    updateNavIndicator();
 }
 
-// Add Active State CSS for Nav Links
+// Add Active State CSS for Nav Links (removed white background, only for tracking)
 function addActiveNavStyle() {
-    const style = document.createElement('style');
-    style.textContent = `
-        .nav-link.active {
-            background: rgba(255, 255, 255, 0.3);
-            font-weight: 700;
-        }
-    `;
-    document.head.appendChild(style);
+    // No longer adding active styles - the indicator handles visual feedback
+    // Active class is still used for tracking which link is active
 }
 
 // Add Parallax Effect to Hero Section
@@ -436,24 +471,65 @@ function addParallaxEffect() {
     }
 }
 
-// Add Typing Animation to Hero Title
+// Add Typing Animation to Hero Title and Subtitle
 function addTypingAnimation() {
-    const heroTitle = document.querySelector('.hero-title');
-    if (heroTitle) {
-        const text = heroTitle.textContent;
-        heroTitle.textContent = '';
-        heroTitle.style.opacity = '1';
-        
-        let i = 0;
-        const typeInterval = setInterval(() => {
-            if (i < text.length) {
-                heroTitle.textContent += text.charAt(i);
-                i++;
-            } else {
-                clearInterval(typeInterval);
-            }
-        }, 100);
+    const titleTextElement = document.getElementById('hero-title-text');
+    const subtitleTextElement = document.getElementById('hero-subtitle-text');
+    const titleCursor = document.querySelector('.hero-title .typing-cursor');
+    const subtitleCursor = document.querySelector('.hero-subtitle .typing-cursor');
+    
+    if (!titleTextElement || !subtitleTextElement) return;
+    
+    const titleText = 'Learn Guangdong Mahjong';
+    const subtitleText = 'Master the art of this classic Chinese tile game';
+    
+    // Reset
+    titleTextElement.textContent = '';
+    subtitleTextElement.textContent = '';
+    
+    // Show cursors initially
+    if (titleCursor) titleCursor.classList.remove('hidden');
+    if (subtitleCursor) subtitleCursor.classList.add('hidden');
+    
+    let titleIndex = 0;
+    let subtitleIndex = 0;
+    let isTypingTitle = true;
+    
+    function typeTitle() {
+        if (titleIndex < titleText.length) {
+            titleTextElement.textContent += titleText.charAt(titleIndex);
+            titleIndex++;
+            setTimeout(typeTitle, 80); // 打字速度：每80ms一个字符
+        } else {
+            // Title完成，隐藏title光标，显示subtitle光标，开始打subtitle
+            if (titleCursor) titleCursor.classList.add('hidden');
+            if (subtitleCursor) subtitleCursor.classList.remove('hidden');
+            setTimeout(() => {
+                isTypingTitle = false;
+                typeSubtitle();
+            }, 300); // 短暂停顿后开始subtitle
+        }
     }
+    
+    function typeSubtitle() {
+        if (subtitleIndex < subtitleText.length) {
+            subtitleTextElement.textContent += subtitleText.charAt(subtitleIndex);
+            subtitleIndex++;
+            setTimeout(typeSubtitle, 60); // 打字速度：每60ms一个字符
+        } else {
+            // Subtitle完成，隐藏光标
+            if (subtitleCursor) {
+                setTimeout(() => {
+                    subtitleCursor.classList.add('hidden');
+                }, 1000); // 1秒后隐藏光标
+            }
+        }
+    }
+    
+    // 延迟开始，让页面先加载
+    setTimeout(() => {
+        typeTitle();
+    }, 500);
 }
 
 // Add Counter Animation for Numbers
@@ -593,6 +669,600 @@ function ensureBackToTopPosition() {
     }
 }
 
+// Setup Bamboo Growth Animation
+function setupBambooAnimation() {
+    const bambooGroup = document.querySelector('.bamboo-group');
+    if (!bambooGroup) return;
+    
+    const bambooTiles = bambooGroup.querySelectorAll('.tile-img-container[data-tile^="bamboo"]');
+    const animationContainer = bambooGroup.querySelector('.bamboo-animation-container');
+    
+    if (!animationContainer) return;
+    
+    let isAnimating = false;
+    let animationTimeout = null;
+    
+    // Cleanup function
+    function cleanupAnimation() {
+        if (animationTimeout) {
+            clearTimeout(animationTimeout);
+            animationTimeout = null;
+        }
+        animationContainer.innerHTML = '';
+        animationContainer.style.opacity = '1';
+        animationContainer.style.transition = '';
+        animationContainer.style.transform = '';
+        bambooGroup.classList.remove('animating');
+        isAnimating = false;
+    }
+    
+    bambooTiles.forEach(tile => {
+        tile.style.cursor = 'pointer';
+        
+        tile.addEventListener('click', function(e) {
+            e.stopPropagation();
+            
+            // Prevent multiple animations
+            if (isAnimating) return;
+            
+            // Cleanup previous animation
+            cleanupAnimation();
+            
+            isAnimating = true;
+            
+            // Use requestAnimationFrame for better performance
+            requestAnimationFrame(() => {
+                // Get container dimensions
+                const containerRect = bambooGroup.getBoundingClientRect();
+                const containerWidth = containerRect.width;
+                const containerHeight = containerRect.height;
+                
+                // Reduce number of bamboos for better performance (5-7 instead of 10-15)
+                const numBamboos = 5 + Math.floor(Math.random() * 3);
+                const bambooSpacing = containerWidth / (numBamboos + 1);
+                const maxHeight = Math.min(containerHeight * 0.7, 200); // Limit max height
+                const minHeight = containerHeight * 0.35;
+                
+                // Create bamboo stalks with staggered heights
+                for (let i = 0; i < numBamboos; i++) {
+                    const positionRatio = (i + 1) / (numBamboos + 1);
+                    const centerDistance = Math.abs(positionRatio - 0.5) * 2;
+                    const heightVariation = 1 - (centerDistance * 0.25);
+                    
+                    const bambooHeight = minHeight + (maxHeight - minHeight) * heightVariation * (0.75 + Math.random() * 0.25);
+                    const bambooX = bambooSpacing * (i + 1);
+                    const delay = i * 80; // Staggered delay
+                    
+                    const bamboo = createBambooStalk(bambooX, bambooHeight, delay);
+                    animationContainer.appendChild(bamboo);
+                }
+                
+                // Force reflow before starting animation
+                void animationContainer.offsetWidth;
+                
+                // Start animation
+                bambooGroup.classList.add('animating');
+                
+                // Cleanup after animation completes
+                animationTimeout = setTimeout(() => {
+                    animationContainer.style.transition = 'opacity 0.8s ease-out';
+                    animationContainer.style.opacity = '0';
+                    
+                    animationTimeout = setTimeout(() => {
+                        cleanupAnimation();
+                    }, 800);
+                }, 2500);
+            });
+        });
+    });
+}
+
+// Create a single bamboo stalk with leaves (optimized)
+function createBambooStalk(x, height, delay) {
+    const stalk = document.createElement('div');
+    stalk.className = 'bamboo-stalk';
+    stalk.style.left = (x - 5) + 'px';
+    stalk.style.setProperty('--bamboo-height', height + 'px');
+    stalk.style.animationDelay = delay + 'ms';
+    stalk.style.willChange = 'transform, opacity'; // GPU acceleration
+    
+    // Reduce nodes for better performance
+    const nodeSpacing = 40;
+    const numNodes = Math.floor(height / nodeSpacing);
+    // Limit nodes to max 5 for performance
+    const actualNodes = Math.min(numNodes, 5);
+    for (let i = 1; i < actualNodes; i++) {
+        const node = document.createElement('div');
+        node.className = 'bamboo-node';
+        node.style.bottom = (i * nodeSpacing) + 'px';
+        stalk.appendChild(node);
+    }
+    
+    // Fixed number of leaves: 2-3 leaves per bamboo
+    const numLeaves = 2 + Math.floor(Math.random() * 2);
+    const leafPositions = [];
+    
+    // Fixed position calculation - evenly distributed
+    // For 2 leaves: at 40% and 70% of height
+    // For 3 leaves: at 35%, 55%, and 75% of height
+    if (numLeaves === 2) {
+        leafPositions.push(height * 0.4, height * 0.7);
+    } else {
+        leafPositions.push(height * 0.35, height * 0.55, height * 0.75);
+    }
+    
+    leafPositions.forEach((leafHeight, i) => {
+        const leaf = document.createElement('div');
+        leaf.className = 'bamboo-leaf';
+        // Fixed rotation angles for natural look
+        // First leaf: 30 degrees, second: -30 degrees, third: 20 degrees
+        const rotations = [30, -30, 20];
+        const leafRotation = rotations[i] || 0;
+        
+        // Alternate sides: first leaf on one side, second on the other, etc.
+        const leafSide = i % 2 === 0 ? 1 : -1; // Alternate between left and right
+        
+        // Position leaves so their tip (bottom center) touches the bamboo stalk
+        // Bamboo stalk is 10px wide, positioned at x-5 (left edge) to x+5 (right edge)
+        const bambooLeftEdge = x - 5; // Bamboo left edge
+        const bambooRightEdge = x + 5; // Bamboo right edge
+        
+        // Set leaf position so its bottom center (tip) is at the bamboo edge
+        const leafWidth = 24; // Leaf width in pixels
+        const leafLeft = leafSide === 1 
+            ? bambooRightEdge - (leafWidth / 2)  // Right side: tip at right edge
+            : bambooLeftEdge - (leafWidth / 2); // Left side: tip at left edge
+        
+        leaf.style.bottom = leafHeight + 'px';
+        leaf.style.left = leafLeft + 'px'; // Leaf tip touches bamboo edge
+        leaf.style.setProperty('--leaf-rotation', leafRotation + 'deg');
+        leaf.style.animationDelay = (delay + 400 + i * 200) + 'ms';
+        leaf.style.willChange = 'transform, opacity'; // GPU acceleration
+        
+        // Fixed scale for consistency
+        const leafScale = 1.0;
+        leaf.style.transform = `scale(${leafScale}) rotate(${leafRotation}deg) translateZ(0)`;
+        
+        // Simplified filter (remove complex hue-rotate and brightness)
+        leaf.style.filter = 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25))';
+        
+        stalk.appendChild(leaf);
+    });
+    
+    // Subtle width variation
+    const widthVariation = 0.95 + Math.random() * 0.1;
+    stalk.style.width = (10 * widthVariation) + 'px';
+    
+    return stalk;
+}
+
+// Setup Coin Rain Animation
+function setupCoinAnimation() {
+    const characterGroup = document.querySelector('.character-group');
+    if (!characterGroup) return;
+    
+    const characterTiles = characterGroup.querySelectorAll('.tile-img-container[data-tile^="char"]');
+    const animationContainer = characterGroup.querySelector('.coin-animation-container');
+    
+    if (!animationContainer) return;
+    
+    let isAnimating = false;
+    let animationTimeout = null;
+    let activeCoins = [];
+    
+    // Cleanup function
+    function cleanupAnimation() {
+        if (animationTimeout) {
+            clearTimeout(animationTimeout);
+            animationTimeout = null;
+        }
+        
+        // Remove all coins
+        activeCoins.forEach(coin => {
+            if (coin.parentNode) {
+                coin.remove();
+            }
+        });
+        activeCoins = [];
+        
+        animationContainer.innerHTML = '';
+        animationContainer.style.opacity = '1';
+        animationContainer.style.transition = '';
+        characterGroup.classList.remove('animating');
+        isAnimating = false;
+    }
+    
+    characterTiles.forEach(tile => {
+        tile.style.cursor = 'pointer';
+        
+        tile.addEventListener('click', function(e) {
+            e.stopPropagation();
+            
+            // Prevent multiple animations
+            if (isAnimating) return;
+            
+            // Cleanup previous animation
+            cleanupAnimation();
+            
+            isAnimating = true;
+            
+            // Use requestAnimationFrame for better performance
+            requestAnimationFrame(() => {
+                // Get container dimensions
+                const containerRect = characterGroup.getBoundingClientRect();
+                const containerWidth = containerRect.width;
+                const containerHeight = containerRect.height;
+                
+                // Increase coin count for rain-like effect (25-35 coins)
+                const numCoins = 25 + Math.floor(Math.random() * 11);
+                
+                // Create coins with staggered timing for continuous rain effect
+                for (let i = 0; i < numCoins; i++) {
+                    // Stagger timing more evenly for continuous rain
+                    const delay = i * 50 + Math.random() * 30;
+                    const coin = createCoin(containerWidth, containerHeight, delay);
+                    animationContainer.appendChild(coin);
+                    activeCoins.push(coin);
+                }
+                
+                // Force reflow before starting animation
+                void animationContainer.offsetWidth;
+                
+                // Start animation
+                characterGroup.classList.add('animating');
+                
+                // Cleanup after animation completes (longer for rain effect)
+                animationTimeout = setTimeout(() => {
+                    cleanupAnimation();
+                }, 3000);
+            });
+        });
+    });
+}
+
+// Create a single coin with random properties (vertical fall, rain-like)
+function createCoin(containerWidth, containerHeight, delay) {
+    const coin = document.createElement('div');
+    coin.className = 'coin';
+    
+    // Start from top area (most of container width) - rain starts from above
+    // Cover 80% of container width from top (10%-90% of width)
+    const startX = containerWidth * (0.1 + Math.random() * 0.8);
+    const startY = -30 - Math.random() * 40; // Start above container with variation
+    
+    // End at same X position (vertical fall) - slight random variation for natural look
+    const endX = startX + (Math.random() - 0.5) * 20; // Small random drift (±10px)
+    const endY = containerHeight + 30 + Math.random() * 20;
+    
+    // Random animation properties - faster for rain effect
+    const baseDuration = 1.5;
+    const duration = baseDuration + Math.random() * 0.6; // 1.5-2.1 seconds (faster)
+    const rotationSpeed = 0.5 + Math.random() * 0.3; // 0.5-0.8 seconds per rotation (faster)
+    
+    // Set CSS custom properties for animation (vertical path)
+    coin.style.setProperty('--coin-start-x', (startX - 14) + 'px'); // Center coin (14px = half of 28px)
+    coin.style.setProperty('--coin-end-x', (endX - 14) + 'px');
+    coin.style.setProperty('--coin-end-y', endY + 'px');
+    coin.style.setProperty('--coin-duration', duration + 's');
+    coin.style.setProperty('--coin-rotation-speed', rotationSpeed + 's');
+    
+    // Position at top initially
+    coin.style.left = (startX - 14) + 'px';
+    coin.style.top = startY + 'px';
+    coin.style.animationDelay = delay + 'ms';
+    
+    // Random size variation (slightly smaller for rain density)
+    const scale = 0.8 + Math.random() * 0.3;
+    coin.style.transform = `scale(${scale}) translateZ(0)`;
+    
+    // Random z-index for depth
+    coin.style.zIndex = Math.floor(Math.random() * 5) + 1;
+    
+    return coin;
+}
+
+// Setup Ripple Animation
+function setupRippleAnimation() {
+    const dotsGroup = document.querySelector('.dots-group');
+    if (!dotsGroup) return;
+    
+    const dotsTiles = dotsGroup.querySelectorAll('.tile-img-container[data-tile^="dot"]');
+    const animationContainer = dotsGroup.querySelector('.ripple-animation-container');
+    
+    if (!animationContainer) return;
+    
+    let isAnimating = false;
+    let animationTimeout = null;
+    let activeRipples = [];
+    
+    // Cleanup function
+    function cleanupAnimation() {
+        if (animationTimeout) {
+            clearTimeout(animationTimeout);
+            animationTimeout = null;
+        }
+        
+        // Remove all ripples
+        activeRipples.forEach(ripple => {
+            if (ripple.parentNode) {
+                ripple.remove();
+            }
+        });
+        activeRipples = [];
+        
+        animationContainer.innerHTML = '';
+        dotsGroup.classList.remove('animating');
+        isAnimating = false;
+    }
+    
+    dotsTiles.forEach(tile => {
+        tile.style.cursor = 'pointer';
+        
+        tile.addEventListener('click', function(e) {
+            e.stopPropagation();
+            
+            // Prevent multiple animations
+            if (isAnimating) return;
+            
+            // Cleanup previous animation
+            cleanupAnimation();
+            
+            isAnimating = true;
+            
+            // Use requestAnimationFrame for better performance
+            requestAnimationFrame(() => {
+                // Get container dimensions
+                const containerRect = dotsGroup.getBoundingClientRect();
+                const containerWidth = containerRect.width;
+                const containerHeight = containerRect.height;
+                
+                // Increase ripple count for more water waves (8-12 ripples)
+                const numRipples = 8 + Math.floor(Math.random() * 5);
+                const maxRippleSize = Math.max(containerWidth, containerHeight) * 0.3; // Much smaller ripples
+                
+                // Create ripples with larger staggered timing for bigger spacing
+                for (let i = 0; i < numRipples; i++) {
+                    const ripple = createRipple(containerWidth, containerHeight, maxRippleSize, i * 350);
+                    animationContainer.appendChild(ripple);
+                    activeRipples.push(ripple);
+                }
+                
+                // Force reflow before starting animation
+                void animationContainer.offsetWidth;
+                
+                // Start animation
+                dotsGroup.classList.add('animating');
+                
+                // Cleanup after animation completes (wait for all ripples to fade out)
+                // Duration is 2.8-3.5s, max delay is (numRipples-1) * 350ms, so wait longer
+                const maxDelay = (numRipples - 1) * 350;
+                const maxDuration = 3500; // Maximum duration
+                animationTimeout = setTimeout(() => {
+                    cleanupAnimation();
+                }, maxDelay + maxDuration + 500); // Extra 500ms buffer
+            });
+        });
+    });
+}
+
+// Create a single ripple
+function createRipple(containerWidth, containerHeight, maxSize, delay) {
+    const ripple = document.createElement('div');
+    ripple.className = 'ripple';
+    
+    // Random position with larger spacing - spread across wider area
+    const centerX = containerWidth * (0.1 + Math.random() * 0.8); // 10%-90% of width
+    const centerY = containerHeight * (0.1 + Math.random() * 0.8); // 10%-90% of height
+    
+    // Random size variation - smaller ripples
+    const rippleSize = maxSize * (0.4 + Math.random() * 0.2); // 40%-60% of max size
+    
+    // Slower expansion, faster fade out
+    const duration = 2.8 + Math.random() * 0.7; // 2.8-3.5 seconds
+    
+    // Set CSS custom properties
+    ripple.style.setProperty('--ripple-size', rippleSize + 'px');
+    ripple.style.setProperty('--ripple-duration', duration + 's');
+    ripple.style.left = centerX + 'px';
+    ripple.style.top = centerY + 'px';
+    ripple.style.animationDelay = delay + 'ms';
+    
+    // Random z-index for depth
+    ripple.style.zIndex = Math.floor(Math.random() * 3) + 1;
+    
+    return ripple;
+}
+
+// Setup Wind Animation
+function setupWindAnimation() {
+    const windGroup = document.querySelector('.wind-group');
+    if (!windGroup) return;
+    
+    const windTiles = windGroup.querySelectorAll('.tile-img-container[data-tile^="wind"]');
+    const animationContainer = windGroup.querySelector('.wind-animation-container');
+    
+    if (!animationContainer) return;
+    
+    let isAnimating = false;
+    let animationTimeout = null;
+    let activeParticles = [];
+    
+    // Cleanup function
+    function cleanupAnimation() {
+        if (animationTimeout) {
+            clearTimeout(animationTimeout);
+            animationTimeout = null;
+        }
+        
+        // Remove all particles
+        activeParticles.forEach(particle => {
+            if (particle.parentNode) {
+                particle.remove();
+            }
+        });
+        activeParticles = [];
+        
+        animationContainer.innerHTML = '';
+        windGroup.classList.remove('animating');
+        isAnimating = false;
+    }
+    
+    windTiles.forEach(tile => {
+        tile.style.cursor = 'pointer';
+        
+        tile.addEventListener('click', function(e) {
+            e.stopPropagation();
+            
+            // Prevent multiple animations
+            if (isAnimating) return;
+            
+            // Cleanup previous animation
+            cleanupAnimation();
+            
+            isAnimating = true;
+            
+            // Use requestAnimationFrame for better performance
+            requestAnimationFrame(() => {
+                // Get container dimensions
+                const containerRect = windGroup.getBoundingClientRect();
+                const containerWidth = containerRect.width;
+                const containerHeight = containerRect.height;
+                
+                // Generate more wind particles for continuous smooth flow (10-15 particles)
+                const numParticles = 10 + Math.floor(Math.random() * 6);
+                
+                // Create wind particles with varied paths, smaller delay for continuous flow
+                for (let i = 0; i < numParticles; i++) {
+                    const particle = createWindParticle(containerWidth, containerHeight, i * 120);
+                    animationContainer.appendChild(particle);
+                    activeParticles.push(particle);
+                }
+                
+                // Force reflow before starting animation
+                void animationContainer.offsetWidth;
+                
+                // Start animation
+                windGroup.classList.add('animating');
+                
+                // Cleanup after animation completes
+                const maxDelay = (numParticles - 1) * 120;
+                const maxDuration = 3000; // Maximum duration
+                animationTimeout = setTimeout(() => {
+                    cleanupAnimation();
+                }, maxDelay + maxDuration + 500);
+            });
+        });
+    });
+}
+
+// Create a single wind particle (elegant wind cloud)
+function createWindParticle(containerWidth, containerHeight, delay) {
+    const particle = document.createElement('div');
+    particle.className = 'wind-particle';
+    
+    // Random start position (from left side, spread vertically for continuous flow)
+    const startX = -150 - Math.random() * 50; // Start from left, outside container
+    const startY = containerHeight * (0.1 + Math.random() * 0.8); // 10%-90% from top (wider spread)
+    
+    // Random end position (to right side, with smooth curved path)
+    const endX = containerWidth + 150 + Math.random() * 50; // End to right, outside container
+    const endY = startY + (Math.random() - 0.5) * containerHeight * 0.25; // Smooth vertical curve
+    
+    // Random duration for variety, slightly longer for smoother flow
+    const duration = 2.8 + Math.random() * 0.6; // 2.8-3.4 seconds (smoother)
+    
+    // Set CSS custom properties
+    particle.style.setProperty('--wind-start-x', startX + 'px');
+    particle.style.setProperty('--wind-start-y', startY + 'px');
+    particle.style.setProperty('--wind-end-x', endX + 'px');
+    particle.style.setProperty('--wind-end-y', endY + 'px');
+    particle.style.setProperty('--wind-duration', duration + 's');
+    particle.style.left = startX + 'px';
+    particle.style.top = startY + 'px';
+    particle.style.animationDelay = delay + 'ms';
+    
+    // Random z-index for depth
+    particle.style.zIndex = Math.floor(Math.random() * 3) + 1;
+    
+    return particle;
+}
+
+// Setup Dragon Tile Transformation Animation
+function setupDragonTileAnimation() {
+    const redDragonTile = document.querySelector('.dragon-red-tile');
+    if (!redDragonTile) return;
+    
+    const tileImg = redDragonTile.querySelector('.tile-img');
+    if (!tileImg) return;
+    
+    // List of all available tile images (excluding the red dragon itself)
+    const allTiles = [
+        'tiles/B1.png', 'tiles/B2.png', 'tiles/B3.png', 'tiles/B4.png', 'tiles/B5.png', 'tiles/B6.png', 'tiles/B7.png', 'tiles/B8.png', 'tiles/B9.png',
+        'tiles/C1.png', 'tiles/C2.png', 'tiles/C3.png', 'tiles/C4.png', 'tiles/C5.png', 'tiles/C6.png', 'tiles/C7.png', 'tiles/C8.png', 'tiles/C9.png',
+        'tiles/D1.png', 'tiles/D2.png', 'tiles/D3.png', 'tiles/D4.png', 'tiles/D5.png', 'tiles/D6.png', 'tiles/D7.png', 'tiles/D8.png', 'tiles/D9.png',
+        'tiles/E.png', 'tiles/S.png', 'tiles/W.png', 'tiles/N.png',
+        'tiles/F.png', 'tiles/WH.png'
+    ];
+    
+    const originalSrc = tileImg.src;
+    let isAnimating = false;
+    
+    redDragonTile.style.cursor = 'pointer';
+    
+    redDragonTile.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        // Prevent multiple animations
+        if (isAnimating) return;
+        
+        isAnimating = true;
+        
+        // Randomly select a tile (excluding red dragon)
+        const randomTile = allTiles[Math.floor(Math.random() * allTiles.length)];
+        
+        // Phase 1: Transform to random tile (flip out)
+        requestAnimationFrame(() => {
+            tileImg.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease';
+            tileImg.style.transform = 'scale(0.8) rotateY(90deg)';
+            tileImg.style.opacity = '0';
+            
+            setTimeout(() => {
+                // Change image
+                tileImg.src = randomTile;
+                
+                // Phase 2: Show random tile (flip in)
+                requestAnimationFrame(() => {
+                    tileImg.style.transform = 'scale(1) rotateY(0deg)';
+                    tileImg.style.opacity = '1';
+                    
+                    setTimeout(() => {
+                        // Phase 3: Transform back to red dragon (flip out)
+                        tileImg.style.transform = 'scale(0.8) rotateY(-90deg)';
+                        tileImg.style.opacity = '0';
+                        
+                        setTimeout(() => {
+                            // Change back to red dragon
+                            tileImg.src = originalSrc;
+                            
+                            // Phase 4: Show red dragon again (flip in)
+                            requestAnimationFrame(() => {
+                                tileImg.style.transform = 'scale(1) rotateY(0deg)';
+                                tileImg.style.opacity = '1';
+                                
+                                setTimeout(() => {
+                                    // Reset transition
+                                    tileImg.style.transition = '';
+                                    isAnimating = false;
+                                }, 500);
+                            });
+                        }, 500);
+                    }, 800); // Show random tile for 800ms
+                });
+            }, 500);
+        });
+    });
+}
+
 function init() {
     // 首先确保回到顶部按钮位置正确
     ensureBackToTopPosition();
@@ -608,6 +1278,21 @@ function init() {
     
     // 注意：滚动事件监听器在代码后面统一设置（优化版本）
     // 不需要在这里重复添加
+    
+    // Setup bamboo animation
+    setupBambooAnimation();
+    
+    // Setup coin animation
+    setupCoinAnimation();
+    
+    // Setup ripple animation
+    setupRippleAnimation();
+    
+    // Setup wind animation
+    setupWindAnimation();
+    
+    // Setup dragon tile transformation animation
+    setupDragonTileAnimation();
     
     // Add tile interactions
     addTileClickAnimation();
@@ -634,6 +1319,9 @@ function init() {
     // Add parallax effect
     addParallaxEffect();
     
+    // Add typing animation to hero section
+    addTypingAnimation();
+    
     // Animate elements on load
     window.addEventListener('load', () => {
         animateTileStack();
@@ -642,6 +1330,8 @@ function init() {
         animateWallVisual();
         // 页面加载完成后再次确保按钮位置正确
         ensureBackToTopPosition();
+        // 初始化导航指示器位置
+        updateActiveNavLink();
     });
     
     // Smooth scroll for nav links
@@ -650,6 +1340,11 @@ function init() {
             e.preventDefault();
             const targetId = link.getAttribute('href').substring(1);
             scrollToSection(targetId);
+            
+            // Update active state immediately for better UX
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            updateNavIndicator();
         });
     });
     
@@ -657,6 +1352,7 @@ function init() {
     checkSectionVisibility();
     updateProgressBar();
     toggleBackToTop();
+    updateActiveNavLink(); // Initialize active nav and indicator
     
     // 监听窗口大小变化，确保按钮位置正确
     window.addEventListener('resize', ensureBackToTopPosition);
@@ -722,7 +1418,7 @@ function optimizedScrollHandler() {
     updateProgressBar();
     checkSectionVisibility();
     toggleBackToTop();
-    updateActiveNavLink();
+    updateActiveNavLink(); // This will also update the indicator
     ticking = false;
 }
 
@@ -780,12 +1476,17 @@ function triggerPungAnimation(element) {
     if (plus) plus.style.opacity = '0';
     if (equals) equals.style.opacity = '0';
     
-    // Animate tiles moving together
-    const tiles = tilesInHand.querySelectorAll('.tile-img-container');
+    // Get tile positions
+    const tiles = Array.from(tilesInHand.querySelectorAll('.tile-img-container'));
     const discardedRect = discardedTile.getBoundingClientRect();
     const meldedRect = meldedGroup.getBoundingClientRect();
     
-    // Create animated tiles with staggered timing
+    // Second tile position (the discarded tile in the middle)
+    const secondTileX = discardedRect.left + discardedRect.width / 2;
+    const secondTileY = discardedRect.top + discardedRect.height / 2;
+    
+    // Create clones for first and third tiles (the ones in hand)
+    const clonedTiles = [];
     tiles.forEach((tile, index) => {
         const clonedTile = tile.cloneNode(true);
         const tileRect = tile.getBoundingClientRect();
@@ -797,103 +1498,133 @@ function triggerPungAnimation(element) {
         clonedTile.style.zIndex = '10000';
         clonedTile.style.transform = 'scale(1) rotate(0deg)';
         clonedTile.style.opacity = '1';
-        clonedTile.style.transition = 'all 0.9s cubic-bezier(0.34, 1.56, 0.64, 1)';
         clonedTile.classList.add('animated-tile');
         document.body.appendChild(clonedTile);
+        clonedTiles.push(clonedTile);
+    });
+    
+    // Phase 1: First and third tiles fly towards second tile, but first move away
+    const awayDistance = 80; // Distance to move away
+    const approachTime = 600; // Time to approach
+    
+    clonedTiles.forEach((clonedTile, index) => {
+        const tileRect = tiles[index].getBoundingClientRect();
+        const startX = tileRect.left + tileRect.width / 2;
+        const startY = tileRect.top + tileRect.height / 2;
         
-        // Stagger animation for smoother effect
+        // Calculate direction away from second tile
+        const dx = startX - secondTileX;
+        const dy = startY - secondTileY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const awayX = startX + (dx / distance) * awayDistance;
+        const awayY = startY + (dy / distance) * awayDistance;
+        
+        // Step 1: Move away from second tile
+        clonedTile.style.transition = `all 0.4s cubic-bezier(0.4, 0, 0.2, 1)`;
         setTimeout(() => {
-            const targetX = meldedRect.left + (index * 50);
-            const targetY = meldedRect.top;
+            clonedTile.style.left = (awayX - clonedTile.offsetWidth / 2) + 'px';
+            clonedTile.style.top = (awayY - clonedTile.offsetHeight / 2) + 'px';
+            clonedTile.style.transform = 'scale(1.1) rotate(' + (index === 0 ? '-15' : '15') + 'deg)';
+        }, 50);
+        
+        // Step 2: Approach second tile (but not too close)
+        setTimeout(() => {
+            const approachX = secondTileX + (index === 0 ? -60 : 60); // First tile on left, third on right
+            const approachY = secondTileY - 20;
             
-            // Animate through control points for smooth arc
-            clonedTile.style.left = targetX + 'px';
-            clonedTile.style.top = targetY + 'px';
-            clonedTile.style.transform = 'scale(1.15) rotate(' + (5 + index * 2) + 'deg)';
-        }, 30 + (index * 40));
-        
-        // Fade out after reaching destination
+            clonedTile.style.transition = `all ${approachTime}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
+            clonedTile.style.left = (approachX - clonedTile.offsetWidth / 2) + 'px';
+            clonedTile.style.top = (approachY - clonedTile.offsetHeight / 2) + 'px';
+            clonedTile.style.transform = 'scale(1.2) rotate(' + (index === 0 ? '-10' : '10') + 'deg)';
+        }, 450);
+    });
+    
+    // Phase 2: Accelerate and collide with second tile
+    const collisionTime = 300; // Fast collision
+    const collisionDelay = 450 + approachTime;
+    
+    clonedTiles.forEach((clonedTile, index) => {
         setTimeout(() => {
-            clonedTile.style.transition = 'all 0.3s ease-out';
+            // Accelerate towards second tile
+            clonedTile.style.transition = `all ${collisionTime}ms cubic-bezier(0.25, 0.1, 0.25, 1)`;
+            clonedTile.style.left = (secondTileX - clonedTile.offsetWidth / 2) + 'px';
+            clonedTile.style.top = (secondTileY - clonedTile.offsetHeight / 2) + 'px';
+            clonedTile.style.transform = 'scale(1.3) rotate(0deg)';
+        }, collisionDelay);
+    });
+    
+    // Phase 3: Create collision effect and show "Pung!" text
+    setTimeout(() => {
+        // Create impact ripple effect
+        const ripple = document.createElement('div');
+        ripple.style.position = 'fixed';
+        ripple.style.left = secondTileX + 'px';
+        ripple.style.top = secondTileY + 'px';
+        ripple.style.width = '0px';
+        ripple.style.height = '0px';
+        ripple.style.border = '4px solid rgba(88, 204, 2, 0.8)';
+        ripple.style.borderRadius = '50%';
+        ripple.style.transform = 'translate(-50%, -50%)';
+        ripple.style.zIndex = '10001';
+        ripple.style.pointerEvents = 'none';
+        document.body.appendChild(ripple);
+        
+        // Animate ripple
+        setTimeout(() => {
+            ripple.style.transition = 'all 0.5s ease-out';
+            ripple.style.width = '120px';
+            ripple.style.height = '120px';
+            ripple.style.opacity = '0';
+            setTimeout(() => ripple.remove(), 500);
+        }, 10);
+        
+        // Fade out cloned tiles
+        clonedTiles.forEach(clonedTile => {
+            clonedTile.style.transition = 'all 0.2s ease-out';
             clonedTile.style.opacity = '0';
             clonedTile.style.transform = 'scale(0.8)';
             setTimeout(() => {
                 if (clonedTile.parentNode) {
                     clonedTile.remove();
                 }
-            }, 300);
-        }, 1030 + (index * 40));
-    });
-    
-    // Animate discarded tile with smooth arc
-    const clonedDiscarded = discardedTile.cloneNode(true);
-    clonedDiscarded.style.position = 'fixed';
-    clonedDiscarded.style.left = discardedRect.left + 'px';
-    clonedDiscarded.style.top = discardedRect.top + 'px';
-    clonedDiscarded.style.width = discardedTile.offsetWidth + 'px';
-    clonedDiscarded.style.height = discardedTile.offsetHeight + 'px';
-    clonedDiscarded.style.zIndex = '10000';
-    clonedDiscarded.style.transform = 'scale(1) rotate(0deg)';
-    clonedDiscarded.style.opacity = '1';
-    clonedDiscarded.style.transition = 'all 0.9s cubic-bezier(0.34, 1.56, 0.64, 1)';
-    clonedDiscarded.classList.add('animated-tile');
-    document.body.appendChild(clonedDiscarded);
-    
-    setTimeout(() => {
-        const targetX = meldedRect.left + (tiles.length * 50);
-        const targetY = meldedRect.top;
+            }, 200);
+        });
         
-        clonedDiscarded.style.left = targetX + 'px';
-        clonedDiscarded.style.top = targetY + 'px';
-        clonedDiscarded.style.transform = 'scale(1.15) rotate(-8deg)';
-    }, 150);
-    
-    // Fade out discarded tile after reaching destination
-    setTimeout(() => {
-        clonedDiscarded.style.transition = 'all 0.3s ease-out';
-        clonedDiscarded.style.opacity = '0';
-        clonedDiscarded.style.transform = 'scale(0.8)';
+        // Show "Pung!" text after collision
         setTimeout(() => {
-            if (clonedDiscarded.parentNode) {
-                clonedDiscarded.remove();
-            }
-        }, 300);
-    }, 1050);
-    
-    // Show "Pung!" text with smooth animation (after tiles disappear)
-    setTimeout(() => {
-        const pungText = document.createElement('div');
-        pungText.className = 'pung-kong-text pung-text';
-        pungText.textContent = 'Pung!';
-        pungText.style.position = 'fixed';
-        pungText.style.left = meldedRect.left + (meldedRect.width / 2) + 'px';
-        pungText.style.top = meldedRect.top - 40 + 'px';
-        pungText.style.transform = 'translateX(-50%) scale(0.5)';
-        pungText.style.opacity = '0';
-        pungText.style.zIndex = '10001';
-        pungText.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-        document.body.appendChild(pungText);
-        
-        // Animate text appearance with bounce
-        setTimeout(() => {
-            pungText.style.transform = 'translateX(-50%) scale(1.2)';
-            pungText.style.opacity = '1';
-        }, 50);
-        
-        // Scale back and fade out
-        setTimeout(() => {
-            pungText.style.transform = 'translateX(-50%) scale(1) translateY(-15px)';
-        }, 400);
-        
-        // Remove text
-        setTimeout(() => {
+            const pungText = document.createElement('div');
+            pungText.className = 'pung-kong-text pung-text';
+            pungText.textContent = 'Pung!';
+            pungText.style.position = 'fixed';
+            pungText.style.left = secondTileX + 'px';
+            pungText.style.top = (secondTileY - 60) + 'px';
+            pungText.style.transform = 'translateX(-50%) scale(0.3)';
             pungText.style.opacity = '0';
-            pungText.style.transform = 'translateX(-50%) scale(0.9) translateY(-25px)';
-            setTimeout(() => pungText.remove(), 500);
-        }, 2000);
-    }, 1400);
+            pungText.style.zIndex = '10002';
+            pungText.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            document.body.appendChild(pungText);
+            
+            // Animate text appearance with bounce
+            setTimeout(() => {
+                pungText.style.transform = 'translateX(-50%) scale(1.3)';
+                pungText.style.opacity = '1';
+            }, 50);
+            
+            // Scale back and fade out
+            setTimeout(() => {
+                pungText.style.transform = 'translateX(-50%) scale(1) translateY(-15px)';
+            }, 400);
+            
+            // Remove text
+            setTimeout(() => {
+                pungText.style.opacity = '0';
+                pungText.style.transform = 'translateX(-50%) scale(0.9) translateY(-25px)';
+                setTimeout(() => pungText.remove(), 500);
+            }, 2000);
+        }, 100);
+    }, collisionDelay + collisionTime);
     
-    // Highlight melded group with smooth transition (after tiles disappear)
+    // Highlight melded group after collision
     setTimeout(() => {
         meldedGroup.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
         meldedGroup.style.transform = 'scale(1.15)';
@@ -910,9 +1641,9 @@ function triggerPungAnimation(element) {
                 meldedGroup.style.transition = '';
             }, 400);
         }, 600);
-    }, 1400);
+    }, collisionDelay + collisionTime + 200);
     
-    // Clean up cloned tiles (they should already be removed from fade out)
+    // Clean up
     setTimeout(() => {
         document.querySelectorAll('.animated-tile').forEach(tile => {
             if (tile.parentNode) {
@@ -928,7 +1659,7 @@ function triggerPungAnimation(element) {
             equals.style.opacity = '1';
         }
         exampleVisual.classList.remove('animating');
-    }, 3800);
+    }, collisionDelay + collisionTime + 3000);
 }
 
 // Kong Animation Effect
@@ -2505,4 +3236,5 @@ if (document.readyState === 'loading') {
 } else {
     setupPungKongChallengeModalHandlers();
 }
+
 
