@@ -15,6 +15,7 @@
                 <h1>Guangdong Mahjong</h1>
             </div>
             <nav class="nav">
+                <div class="nav-indicator"></div>
                 <a href="#intro" class="nav-link">Introduction</a>
                 <a href="#tiles" class="nav-link">Tiles Set</a>
                 <a href="#goal" class="nav-link">Goal</a>
@@ -29,8 +30,8 @@
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h2 class="hero-title">Learn Guangdong Mahjong</h2>
-                <p class="hero-subtitle">Master the art of this classic Chinese tile game</p>
+                <h2 class="hero-title"><span class="typing-text" id="hero-title-text"></span><span class="typing-cursor">|</span></h2>
+                <p class="hero-subtitle"><span class="typing-text" id="hero-subtitle-text"></span><span class="typing-cursor">|</span></p>
                 <button class="btn-primary" onclick="scrollToSection('intro')">Start Learning</button>
             </div>
             <div class="hero-illustration">
@@ -78,8 +79,9 @@
                         <p class="category-desc">Each suit consists of 9 types (from 1 to 9), and each type consists of 4 tiles.</p>
                         
                         <div class="tile-display">
-                            <div class="tile-group">
+                            <div class="tile-group bamboo-group">
                                 <h5>Bamboos </h5>
+                                <div class="bamboo-animation-container"></div>
                                 <div class="tiles-row">
                                     <div class="tile-img-container" data-tile="bamboo-1"><img src="tiles/B1.png" alt="🀐" class="tile-img"></div>
                                     <div class="tile-img-container" data-tile="bamboo-2"><img src="tiles/B2.png" alt="🀑" class="tile-img"></div>
@@ -92,8 +94,9 @@
                                     <div class="tile-img-container" data-tile="bamboo-9"><img src="tiles/B9.png" alt="🀘" class="tile-img"></div>
                                 </div>
                             </div>
-                            <div class="tile-group">
+                            <div class="tile-group character-group">
                                 <h5>Characters </h5>
+                                <div class="coin-animation-container"></div>
                                 <div class="tiles-row">
                                     <div class="tile-img-container" data-tile="char-1"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
                                     <div class="tile-img-container" data-tile="char-2"><img src="tiles/C2.png" alt="🀈" class="tile-img"></div>
@@ -106,8 +109,9 @@
                                     <div class="tile-img-container" data-tile="char-9"><img src="tiles/C9.png" alt="🀏" class="tile-img"></div>
                                 </div>
                             </div>
-                            <div class="tile-group">
+                            <div class="tile-group dots-group">
                                 <h5>Dots </h5>
+                                <div class="ripple-animation-container"></div>
                                 <div class="tiles-row">
                                     <div class="tile-img-container" data-tile="dot-1"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
                                     <div class="tile-img-container" data-tile="dot-2"><img src="tiles/D2.png" alt="🀚" class="tile-img"></div>
@@ -127,8 +131,9 @@
                         <h4 class="category-title">Honor Tiles (28 tiles)</h4>
                         
                         <div class="honor-tiles">
-                            <div class="honor-group">
+                            <div class="honor-group wind-group">
                                 <h5>Wind Tiles </h5>
+                                <div class="wind-animation-container"></div>
                                 <div class="tiles-row">
                                     <div class="tile-with-label">
                                         <div class="tile-img-container honor-tile" data-tile="wind-east"><img src="tiles/E.png" alt="🀀" class="tile-img"></div>
@@ -148,11 +153,11 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="honor-group">
+                            <div class="honor-group dragon-group">
                                 <h5>Dragon Tiles</h5>
                                 <div class="tiles-row">
                                     <div class="tile-with-label">
-                                        <div class="tile-img-container honor-tile special" data-tile="dragon-red"><img src="tiles/R.png" alt="🀄" class="tile-img"></div>
+                                        <div class="tile-img-container honor-tile special dragon-red-tile" data-tile="dragon-red"><img src="tiles/R.png" alt="🀄" class="tile-img"></div>
                                         <p class="tile-label">Red dragon</p>
                                     </div>
                                     <div class="tile-with-label">
