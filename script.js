@@ -1267,7 +1267,7 @@ function setupDragonTileAnimation() {
 function setupLoadingPage() {
     const loadingPage = document.getElementById('loadingPage');
     const mainContent = document.getElementById('mainContent');
-    const loadingText = loadingPage ? loadingPage.querySelector('.loading-text') : null;
+    const tileImg = loadingPage ? loadingPage.querySelector('.tile-spinning') : null;
     
     // If no loading page, show main content immediately
     if (!loadingPage) {
@@ -1283,42 +1283,72 @@ function setupLoadingPage() {
         return;
     }
     
-    // Loading dots animation
-    let loadingDots = 0;
-    const loadingInterval = setInterval(function() {
-        let str = "";
-        if (loadingDots < 3) {
-            loadingDots++;
-        } else {
-            loadingDots = 1;
-        }
-        for (let i = 0; i < loadingDots; i++) {
-            str += ".";
-        }
-        if (loadingText) {
-            loadingText.textContent = "Loading" + str;
-        }
-    }, 500);
+    // Setup tile rotation and switching
+    let tileChangeInterval = null;
+    if (tileImg) {
+        const tiles = [
+            'tiles/R.png',   // Red Dragon
+            'tiles/B1.png',  // Bamboo 1
+            'tiles/C1.png', // Character 1
+            'tiles/D1.png', // Dot 1
+            'tiles/F.png',  // Green Dragon
+            'tiles/WH.png'  // White Dragon
+        ];
+        let currentTileIndex = 0;
+        
+        // Change tile every rotation (when it's at 180deg, invisible side)
+        // Animation is 2s, so change at 1s (when rotated to 180deg)
+        const changeTile = function() {
+            currentTileIndex = (currentTileIndex + 1) % tiles.length;
+            // Preload next image to avoid flicker
+            const nextImg = new Image();
+            nextImg.src = tiles[currentTileIndex];
+            nextImg.onload = function() {
+                tileImg.src = tiles[currentTileIndex];
+            };
+            // Fallback: change immediately if image is cached
+            if (nextImg.complete) {
+                tileImg.src = tiles[currentTileIndex];
+            }
+        };
+        
+        // First change at 1s (when rotated to 180deg, back side)
+        setTimeout(function() {
+            changeTile();
+            
+            // Then continue changing every 2 seconds
+            tileChangeInterval = setInterval(changeTile, 2000);
+        }, 1000);
+    }
     
-    // Hide loading page and show main content when page is loaded
     function showMainContent() {
+        // Clear tile change interval
+        if (tileChangeInterval) {
+            clearInterval(tileChangeInterval);
+            tileChangeInterval = null;
+        }
+        
         loadingPage.classList.add('hidden');
         mainContent.classList.add('loaded');
-        clearInterval(loadingInterval);
+        
+        // Start typing animation after loading page is hidden
+        setTimeout(function() {
+            addTypingAnimation();
+        }, 600);
         
         // Remove loading page from DOM after animation
         setTimeout(function() {
             loadingPage.style.display = 'none';
-        }, 500);
+        }, 600);
     }
     
     // Check if page is already loaded
     if (document.readyState === 'complete') {
-        setTimeout(showMainContent, 1000);
+        setTimeout(showMainContent, 1200);
     } else {
         window.addEventListener('load', function() {
             // Wait a bit for smooth transition
-            setTimeout(showMainContent, 1000);
+            setTimeout(showMainContent, 1200);
         });
     }
     
@@ -1389,8 +1419,8 @@ function init() {
     // Add parallax effect
     addParallaxEffect();
     
-    // Add typing animation to hero section
-    addTypingAnimation();
+    // Typing animation will start after loading page is hidden
+    // (called in setupLoadingPage's showMainContent function)
     
     // Animate elements on load
     window.addEventListener('load', () => {
