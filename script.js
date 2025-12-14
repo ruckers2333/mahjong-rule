@@ -1263,7 +1263,77 @@ function setupDragonTileAnimation() {
     });
 }
 
+// Loading Page Control
+function setupLoadingPage() {
+    const loadingPage = document.getElementById('loadingPage');
+    const mainContent = document.getElementById('mainContent');
+    const loadingText = loadingPage ? loadingPage.querySelector('.loading-text') : null;
+    
+    // If no loading page, show main content immediately
+    if (!loadingPage) {
+        if (mainContent) {
+            mainContent.classList.add('loaded');
+        }
+        return;
+    }
+    
+    // If no main content wrapper, show everything immediately
+    if (!mainContent) {
+        loadingPage.style.display = 'none';
+        return;
+    }
+    
+    // Loading dots animation
+    let loadingDots = 0;
+    const loadingInterval = setInterval(function() {
+        let str = "";
+        if (loadingDots < 3) {
+            loadingDots++;
+        } else {
+            loadingDots = 1;
+        }
+        for (let i = 0; i < loadingDots; i++) {
+            str += ".";
+        }
+        if (loadingText) {
+            loadingText.textContent = "Loading" + str;
+        }
+    }, 500);
+    
+    // Hide loading page and show main content when page is loaded
+    function showMainContent() {
+        loadingPage.classList.add('hidden');
+        mainContent.classList.add('loaded');
+        clearInterval(loadingInterval);
+        
+        // Remove loading page from DOM after animation
+        setTimeout(function() {
+            loadingPage.style.display = 'none';
+        }, 500);
+    }
+    
+    // Check if page is already loaded
+    if (document.readyState === 'complete') {
+        setTimeout(showMainContent, 1000);
+    } else {
+        window.addEventListener('load', function() {
+            // Wait a bit for smooth transition
+            setTimeout(showMainContent, 1000);
+        });
+    }
+    
+    // Fallback: show content after 3 seconds even if load event doesn't fire
+    setTimeout(function() {
+        if (!mainContent.classList.contains('loaded')) {
+            showMainContent();
+        }
+    }, 3000);
+}
+
 function init() {
+    // Setup loading page
+    setupLoadingPage();
+    
     // 首先确保回到顶部按钮位置正确
     ensureBackToTopPosition();
     
