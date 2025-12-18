@@ -781,8 +781,8 @@ function setupBambooAnimation() {
                 const containerWidth = containerRect.width;
                 const containerHeight = containerRect.height;
                 
-                // Reduce number of bamboos for better performance (5-7 instead of 10-15)
-                const numBamboos = 5 + Math.floor(Math.random() * 3);
+                // Fixed 7 bamboos for every click
+                const numBamboos = 7;
                 const bambooSpacing = containerWidth / (numBamboos + 1);
                 const maxHeight = Math.min(containerHeight * 0.7, 200); // Limit max height
                 const minHeight = containerHeight * 0.35;
@@ -1244,15 +1244,15 @@ function createWindStreak(width, height, delay, type) {
     let startX, startY, endX, endY;
     const length = 150 + Math.random() * 100;
     
-    if (type === 'east') { // Left to Right
-        startX = -length;
-        startY = height * (0.2 + Math.random() * 0.6);
-        endX = width + length;
-        endY = startY + (Math.random() - 0.5) * 100;
-    } else if (type === 'west') { // Right to Left
+    if (type === 'east') { // Right to Left (Opposite for animation)
         startX = width + length;
         startY = height * (0.2 + Math.random() * 0.6);
         endX = -length;
+        endY = startY + (Math.random() - 0.5) * 100;
+    } else if (type === 'west') { // Left to Right
+        startX = -length;
+        startY = height * (0.2 + Math.random() * 0.6);
+        endX = width + length;
         endY = startY + (Math.random() - 0.5) * 100;
     } else if (type === 'north') { // Top to Bottom
         startX = width * (0.2 + Math.random() * 0.6);
@@ -1285,15 +1285,15 @@ function createWindLeaf(width, height, delay, type) {
     
     let startX, startY, endX, endY;
     
-    if (type === 'east') {
-        startX = -20;
-        startY = Math.random() * height;
-        endX = width + 20;
-        endY = startY + (Math.random() - 0.5) * height;
-    } else if (type === 'west') {
+    if (type === 'east') { // Right to Left
         startX = width + 20;
         startY = Math.random() * height;
         endX = -20;
+        endY = startY + (Math.random() - 0.5) * height;
+    } else if (type === 'west') { // Left to Right
+        startX = -20;
+        startY = Math.random() * height;
+        endX = width + 20;
         endY = startY + (Math.random() - 0.5) * height;
     } else if (type === 'north') {
         startX = Math.random() * width;
@@ -1317,11 +1317,16 @@ function createWindLeaf(width, height, delay, type) {
     leaf.style.animationDelay = delay + 'ms';
     leaf.style.animationDuration = (3 + Math.random() * 2) + 's';
     
-    // Randomize leaf color (East/South = green/pink, West/North = white/blue)
+    // Randomize leaf color
     if (type === 'east' || type === 'south') {
+        // Spring/Summer: Green and Pink
         leaf.style.background = Math.random() > 0.5 ? '#98fb98' : '#ffb7c5';
-    } else {
-        leaf.style.background = Math.random() > 0.5 ? '#ffffff' : '#add8e6';
+    } else if (type === 'west') {
+        // Autumn: Gold and Orange
+        leaf.style.background = Math.random() > 0.5 ? '#ffb347' : '#ffcc33';
+    } else { // north
+        // Winter: Light Blue and Sky Blue (No white)
+        leaf.style.background = Math.random() > 0.5 ? '#add8e6' : '#87ceeb';
     }
     
     return leaf;
@@ -1577,6 +1582,10 @@ function setupEmojiAssistant() {
     // Initial greeting
     setTimeout(() => {
         speak("Welcome! I'm your Mahjong guide!");
+        
+        setTimeout(() => {
+            speak("Click any tile, unlock a surprise!");
+        }, 3000);
     }, 2000);
 
     // Global listener for mahjong tile clicks - using capture phase (true)
