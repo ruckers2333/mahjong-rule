@@ -30,6 +30,70 @@ function scrollToGameplay() {
     }
 }
 
+// Scroll to Step 3: Discard a Tile Function
+function scrollToStep3Discard(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+    }
+    
+    // First, scroll to gameplay section to ensure it's in view
+    const gameplaySection = document.getElementById('gameplay');
+    if (gameplaySection) {
+        const header = document.querySelector('.header');
+        const progressContainer = document.querySelector('.progress-container');
+        const headerHeight = header ? header.offsetHeight : 0;
+        const progressHeight = progressContainer ? progressContainer.offsetHeight : 0;
+        const offset = headerHeight + progressHeight + 20;
+        
+        const gameplayRect = gameplaySection.getBoundingClientRect();
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const gameplayPosition = gameplayRect.top + scrollTop - offset;
+        
+        window.scrollTo({
+            top: Math.max(0, gameplayPosition),
+            behavior: 'smooth'
+        });
+        
+        // Then, after a short delay, scroll to Step 3
+        setTimeout(() => {
+            const step3Element = document.getElementById('step3-discard');
+            if (step3Element) {
+                const step3Rect = step3Element.getBoundingClientRect();
+                const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                const step3Position = step3Rect.top + currentScrollTop - offset;
+                
+                window.scrollTo({
+                    top: Math.max(0, step3Position),
+                    behavior: 'smooth'
+                });
+            }
+        }, 300); // Wait for gameplay section scroll to start
+    } else {
+        // Fallback: direct scroll to Step 3 if gameplay section not found
+        const step3Element = document.getElementById('step3-discard');
+        if (step3Element) {
+            const header = document.querySelector('.header');
+            const progressContainer = document.querySelector('.progress-container');
+            const headerHeight = header ? header.offsetHeight : 0;
+            const progressHeight = progressContainer ? progressContainer.offsetHeight : 0;
+            const offset = headerHeight + progressHeight + 20;
+            
+            const step3Rect = step3Element.getBoundingClientRect();
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const step3Position = step3Rect.top + scrollTop - offset;
+            
+            window.scrollTo({
+                top: Math.max(0, step3Position),
+                behavior: 'smooth'
+            });
+        }
+    }
+    
+    return false; // Prevent default link behavior
+}
+
 // Scroll to Top Function
 function scrollToTop() {
     const backToTop = document.getElementById('backToTop');
@@ -778,53 +842,47 @@ function createBambooStalk(x, height, delay) {
         stalk.appendChild(node);
     }
     
-    // Fixed number of leaves: 2-3 leaves per bamboo
-    const numLeaves = 2 + Math.floor(Math.random() * 2);
+    // Random number of leaves: 1-3 leaves per bamboo
+    const numLeaves = 1 + Math.floor(Math.random() * 3);
     const leafPositions = [];
     
-    // Fixed position calculation - evenly distributed
-    // For 2 leaves: at 40% and 70% of height
-    // For 3 leaves: at 35%, 55%, and 75% of height
-    if (numLeaves === 2) {
-        leafPositions.push(height * 0.4, height * 0.7);
+    // Distribution based on leaf count - higher up for more natural look
+    if (numLeaves === 1) {
+        leafPositions.push(height * (0.5 + Math.random() * 0.3));
+    } else if (numLeaves === 2) {
+        leafPositions.push(height * 0.45, height * 0.75);
     } else {
-        leafPositions.push(height * 0.35, height * 0.55, height * 0.75);
+        leafPositions.push(height * 0.4, height * 0.6, height * 0.85);
     }
     
     leafPositions.forEach((leafHeight, i) => {
         const leaf = document.createElement('div');
         leaf.className = 'bamboo-leaf';
-        // Fixed rotation angles for natural look
-        // First leaf: 30 degrees, second: -30 degrees, third: 20 degrees
-        const rotations = [30, -30, 20];
-        const leafRotation = rotations[i] || 0;
         
-        // Alternate sides: first leaf on one side, second on the other, etc.
-        const leafSide = i % 2 === 0 ? 1 : -1; // Alternate between left and right
+        // Leaf side: alternate but also randomize first side
+        const firstSide = Math.random() > 0.5 ? 1 : -1;
+        const leafSide = i % 2 === 0 ? firstSide : -firstSide;
         
-        // Position leaves so their tip (bottom center) touches the bamboo stalk
-        // Bamboo stalk is 10px wide, positioned at x-5 (left edge) to x+5 (right edge)
-        const bambooLeftEdge = x - 5; // Bamboo left edge
-        const bambooRightEdge = x + 5; // Bamboo right edge
+        // Rotation: 30-45 degrees away from stalk
+        const baseRotation = 35 + Math.random() * 15;
+        const leafRotation = leafSide * baseRotation;
         
-        // Set leaf position so its bottom center (tip) is at the bamboo edge
-        const leafWidth = 24; // Leaf width in pixels
-        const leafLeft = leafSide === 1 
-            ? bambooRightEdge - (leafWidth / 2)  // Right side: tip at right edge
-            : bambooLeftEdge - (leafWidth / 2); // Left side: tip at left edge
+        // Position leaves so their bottom center (tip/base) is exactly on the bamboo stalk
+        const leafWidth = 20; // Matches CSS
+        
+        // Relative to the stalk (which is ~10px wide, centered at 5px)
+        const stalkCenter = 5;
+        const stalkHalfWidth = 4;
+        const leafLeft = stalkCenter + (leafSide * stalkHalfWidth) - (leafWidth / 2);
         
         leaf.style.bottom = leafHeight + 'px';
-        leaf.style.left = leafLeft + 'px'; // Leaf tip touches bamboo edge
+        leaf.style.left = leafLeft + 'px';
         leaf.style.setProperty('--leaf-rotation', leafRotation + 'deg');
-        leaf.style.animationDelay = (delay + 400 + i * 200) + 'ms';
-        leaf.style.willChange = 'transform, opacity'; // GPU acceleration
+        leaf.style.animationDelay = (delay + 500 + i * 150) + 'ms';
+        leaf.style.willChange = 'transform, opacity';
         
-        // Fixed scale for consistency
-        const leafScale = 1.0;
-        leaf.style.transform = `scale(${leafScale}) rotate(${leafRotation}deg) translateZ(0)`;
-        
-        // Simplified filter (remove complex hue-rotate and brightness)
-        leaf.style.filter = 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25))';
+        // Initial state for animation
+        leaf.style.transform = `scale(0) rotate(${leafRotation}deg)`;
         
         stalk.appendChild(leaf);
     });
@@ -1016,61 +1074,88 @@ function setupRippleAnimation() {
                 const containerWidth = containerRect.width;
                 const containerHeight = containerRect.height;
                 
-                // Increase ripple count for more water waves (8-12 ripples)
-                const numRipples = 8 + Math.floor(Math.random() * 5);
-                const maxRippleSize = Math.max(containerWidth, containerHeight) * 0.3; // Much smaller ripples
+                // Get clicked tile position relative to container
+                const tileRect = tile.getBoundingClientRect();
+                const startX = (tileRect.left + tileRect.width / 2) - containerRect.left;
+                const startY = (tileRect.top + tileRect.height / 2) - containerRect.top;
                 
-                // Create ripples with larger staggered timing for bigger spacing
+                // Create multi-colored ripples (reduced count for cleaner look)
+                const numRipples = 3 + Math.floor(Math.random() * 2);
+                const colors = ['#1cb0f6', '#ff4b4b', '#2eb33e']; // Blue, Red, Green
+                
                 for (let i = 0; i < numRipples; i++) {
-                    const ripple = createRipple(containerWidth, containerHeight, maxRippleSize, i * 350);
+                    const color = colors[i % colors.length];
+                    const ripple = createRipple(startX, startY, containerWidth, containerHeight, i * 250, color);
                     animationContainer.appendChild(ripple);
                     activeRipples.push(ripple);
                 }
                 
-                // Force reflow before starting animation
+                // Create shimmering particles (reduced for cleaner look)
+                const numParticles = 8 + Math.floor(Math.random() * 6);
+                for (let i = 0; i < numParticles; i++) {
+                    const particle = createDotParticle(startX, startY, colors[i % colors.length]);
+                    animationContainer.appendChild(particle);
+                    activeRipples.push(particle);
+                }
+                
+                // Force reflow
                 void animationContainer.offsetWidth;
                 
-                // Start animation
                 dotsGroup.classList.add('animating');
                 
-                // Cleanup after animation completes (wait for all ripples to fade out)
-                // Duration is 2.8-3.5s, max delay is (numRipples-1) * 350ms, so wait longer
-                const maxDelay = (numRipples - 1) * 350;
-                const maxDuration = 3500; // Maximum duration
+                const maxDelay = (numRipples - 1) * 250;
                 animationTimeout = setTimeout(() => {
                     cleanupAnimation();
-                }, maxDelay + maxDuration + 500); // Extra 500ms buffer
+                }, maxDelay + 3000);
             });
         });
     });
 }
 
-// Create a single ripple
-function createRipple(containerWidth, containerHeight, maxSize, delay) {
+// Create a single ripple with color
+function createRipple(x, y, containerWidth, containerHeight, delay, color) {
     const ripple = document.createElement('div');
     ripple.className = 'ripple';
     
-    // Random position with larger spacing - spread across wider area
-    const centerX = containerWidth * (0.1 + Math.random() * 0.8); // 10%-90% of width
-    const centerY = containerHeight * (0.1 + Math.random() * 0.8); // 10%-90% of height
+    const maxSize = Math.max(containerWidth, containerHeight) * 1.5;
+    const rippleSize = maxSize * (0.6 + Math.random() * 0.4);
+    const duration = 2.5 + Math.random() * 1.0;
     
-    // Random size variation - smaller ripples
-    const rippleSize = maxSize * (0.4 + Math.random() * 0.2); // 40%-60% of max size
-    
-    // Slower expansion, faster fade out
-    const duration = 2.8 + Math.random() * 0.7; // 2.8-3.5 seconds
-    
-    // Set CSS custom properties
     ripple.style.setProperty('--ripple-size', rippleSize + 'px');
     ripple.style.setProperty('--ripple-duration', duration + 's');
-    ripple.style.left = centerX + 'px';
-    ripple.style.top = centerY + 'px';
+    ripple.style.setProperty('--ripple-color', color);
+    ripple.style.left = x + 'px';
+    ripple.style.top = y + 'px';
     ripple.style.animationDelay = delay + 'ms';
     
-    // Random z-index for depth
-    ripple.style.zIndex = Math.floor(Math.random() * 3) + 1;
-    
     return ripple;
+}
+
+// Create a shimmering dot particle
+function createDotParticle(x, y, color) {
+    const particle = document.createElement('div');
+    particle.className = 'dot-particle';
+    
+    const size = 4 + Math.random() * 6;
+    const duration = 1.5 + Math.random() * 1.5;
+    const delay = Math.random() * 500;
+    
+    // Random trajectory
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 50 + Math.random() * 150;
+    const tx = Math.cos(angle) * distance;
+    const ty = Math.sin(angle) * distance;
+    
+    particle.style.width = size + 'px';
+    particle.style.height = size + 'px';
+    particle.style.backgroundColor = color;
+    particle.style.left = x + 'px';
+    particle.style.top = y + 'px';
+    particle.style.setProperty('--tx', tx + 'px');
+    particle.style.setProperty('--ty', ty + 'px');
+    particle.style.animation = `dotParticleFade ${duration}s cubic-bezier(0.1, 0.8, 0.3, 1) ${delay}ms forwards`;
+    
+    return particle;
 }
 
 // Setup Wind Animation
@@ -1113,89 +1198,761 @@ function setupWindAnimation() {
         tile.addEventListener('click', function(e) {
             e.stopPropagation();
             
-            // Prevent multiple animations
             if (isAnimating) return;
-            
-            // Cleanup previous animation
             cleanupAnimation();
-            
             isAnimating = true;
             
-            // Use requestAnimationFrame for better performance
+            const windType = tile.getAttribute('data-tile').split('-')[1]; // east, south, west, north
+            
             requestAnimationFrame(() => {
-                // Get container dimensions
                 const containerRect = windGroup.getBoundingClientRect();
                 const containerWidth = containerRect.width;
                 const containerHeight = containerRect.height;
                 
-                // Generate more wind particles for continuous smooth flow (10-15 particles)
-                const numParticles = 10 + Math.floor(Math.random() * 6);
-                
-                // Create wind particles with varied paths, smaller delay for continuous flow
-                for (let i = 0; i < numParticles; i++) {
-                    const particle = createWindParticle(containerWidth, containerHeight, i * 120);
-                    animationContainer.appendChild(particle);
-                    activeParticles.push(particle);
+                // Create wind streaks (long elegant lines)
+                const numStreaks = 4 + Math.floor(Math.random() * 3);
+                for (let i = 0; i < numStreaks; i++) {
+                    const streak = createWindStreak(containerWidth, containerHeight, i * 150, windType);
+                    animationContainer.appendChild(streak);
+                    activeParticles.push(streak);
                 }
                 
-                // Force reflow before starting animation
-                void animationContainer.offsetWidth;
+                // Create wind leaves/petals (small swirling bits)
+                const numLeaves = 8 + Math.floor(Math.random() * 6);
+                for (let i = 0; i < numLeaves; i++) {
+                    const leaf = createWindLeaf(containerWidth, containerHeight, i * 100, windType);
+                    animationContainer.appendChild(leaf);
+                    activeParticles.push(leaf);
+                }
                 
-                // Start animation
+                void animationContainer.offsetWidth;
                 windGroup.classList.add('animating');
                 
-                // Cleanup after animation completes
-                const maxDelay = (numParticles - 1) * 120;
-                const maxDuration = 3000; // Maximum duration
                 animationTimeout = setTimeout(() => {
                     cleanupAnimation();
-                }, maxDelay + maxDuration + 500);
+                }, 4500); // Wait for all animations to finish
             });
         });
     });
 }
 
-// Create a single wind particle (elegant wind cloud)
-function createWindParticle(containerWidth, containerHeight, delay) {
-    const particle = document.createElement('div');
-    particle.className = 'wind-particle';
+// Create an elegant wind streak
+function createWindStreak(width, height, delay, type) {
+    const streak = document.createElement('div');
+    streak.className = 'wind-streak';
     
-    // Random start position (from left side, spread vertically for continuous flow)
-    const startX = -150 - Math.random() * 50; // Start from left, outside container
-    const startY = containerHeight * (0.1 + Math.random() * 0.8); // 10%-90% from top (wider spread)
+    let startX, startY, endX, endY;
+    const length = 150 + Math.random() * 100;
     
-    // Random end position (to right side, with smooth curved path)
-    const endX = containerWidth + 150 + Math.random() * 50; // End to right, outside container
-    const endY = startY + (Math.random() - 0.5) * containerHeight * 0.25; // Smooth vertical curve
+    if (type === 'east') { // Left to Right
+        startX = -length;
+        startY = height * (0.2 + Math.random() * 0.6);
+        endX = width + length;
+        endY = startY + (Math.random() - 0.5) * 100;
+    } else if (type === 'west') { // Right to Left
+        startX = width + length;
+        startY = height * (0.2 + Math.random() * 0.6);
+        endX = -length;
+        endY = startY + (Math.random() - 0.5) * 100;
+    } else if (type === 'north') { // Top to Bottom
+        startX = width * (0.2 + Math.random() * 0.6);
+        startY = -length;
+        endX = startX + (Math.random() - 0.5) * 100;
+        endY = height + length;
+    } else { // south, Bottom to Top
+        startX = width * (0.2 + Math.random() * 0.6);
+        startY = height + length;
+        endX = startX + (Math.random() - 0.5) * 100;
+        endY = -length;
+    }
     
-    // Random duration for variety, slightly longer for smoother flow
-    const duration = 2.8 + Math.random() * 0.6; // 2.8-3.4 seconds (smoother)
+    streak.style.width = (type === 'north' || type === 'south' ? '2px' : length + 'px');
+    streak.style.height = (type === 'north' || type === 'south' ? length + 'px' : '2px');
+    streak.style.setProperty('--wind-start-x', startX + 'px');
+    streak.style.setProperty('--wind-start-y', startY + 'px');
+    streak.style.setProperty('--wind-end-x', endX + 'px');
+    streak.style.setProperty('--wind-end-y', endY + 'px');
+    streak.style.animationDelay = delay + 'ms';
+    streak.style.animationDuration = (2.5 + Math.random() * 1.5) + 's';
     
-    // Set CSS custom properties
-    particle.style.setProperty('--wind-start-x', startX + 'px');
-    particle.style.setProperty('--wind-start-y', startY + 'px');
-    particle.style.setProperty('--wind-end-x', endX + 'px');
-    particle.style.setProperty('--wind-end-y', endY + 'px');
-    particle.style.setProperty('--wind-duration', duration + 's');
-    particle.style.left = startX + 'px';
-    particle.style.top = startY + 'px';
-    particle.style.animationDelay = delay + 'ms';
+    return streak;
+}
+
+// Create a small swirling leaf/petal
+function createWindLeaf(width, height, delay, type) {
+    const leaf = document.createElement('div');
+    leaf.className = 'wind-leaf';
     
-    // Random z-index for depth
-    particle.style.zIndex = Math.floor(Math.random() * 3) + 1;
+    let startX, startY, endX, endY;
     
-    return particle;
+    if (type === 'east') {
+        startX = -20;
+        startY = Math.random() * height;
+        endX = width + 20;
+        endY = startY + (Math.random() - 0.5) * height;
+    } else if (type === 'west') {
+        startX = width + 20;
+        startY = Math.random() * height;
+        endX = -20;
+        endY = startY + (Math.random() - 0.5) * height;
+    } else if (type === 'north') {
+        startX = Math.random() * width;
+        startY = -20;
+        endX = startX + (Math.random() - 0.5) * width;
+        endY = height + 20;
+    } else { // south
+        startX = Math.random() * width;
+        startY = height + 20;
+        endX = startX + (Math.random() - 0.5) * width;
+        endY = -20;
+    }
+    
+    const size = 6 + Math.random() * 8;
+    leaf.style.width = size + 'px';
+    leaf.style.height = size + 'px';
+    leaf.style.setProperty('--wind-start-x', startX + 'px');
+    leaf.style.setProperty('--wind-start-y', startY + 'px');
+    leaf.style.setProperty('--wind-end-x', endX + 'px');
+    leaf.style.setProperty('--wind-end-y', endY + 'px');
+    leaf.style.animationDelay = delay + 'ms';
+    leaf.style.animationDuration = (3 + Math.random() * 2) + 's';
+    
+    // Randomize leaf color (East/South = green/pink, West/North = white/blue)
+    if (type === 'east' || type === 'south') {
+        leaf.style.background = Math.random() > 0.5 ? '#98fb98' : '#ffb7c5';
+    } else {
+        leaf.style.background = Math.random() > 0.5 ? '#ffffff' : '#add8e6';
+    }
+    
+    return leaf;
+}
+
+// Setup Winning Hand Tile Switching Animation
+function setupWinningHandAnimation() {
+    // Define different pairs (2 identical tiles)
+    const pairs = [
+        ['tiles/D1.png', 'tiles/D1.png'],
+        ['tiles/B2.png', 'tiles/B2.png'],
+        ['tiles/C3.png', 'tiles/C3.png'],
+        ['tiles/D4.png', 'tiles/D4.png'],
+        ['tiles/B5.png', 'tiles/B5.png'],
+        ['tiles/C6.png', 'tiles/C6.png'],
+        ['tiles/D7.png', 'tiles/D7.png'],
+        ['tiles/B8.png', 'tiles/B8.png'],
+        ['tiles/C9.png', 'tiles/C9.png'],
+        ['tiles/R.png', 'tiles/R.png'],
+        ['tiles/F.png', 'tiles/F.png'],
+        ['tiles/WH.png', 'tiles/WH.png']
+    ];
+    
+    // Define different sequences (3 consecutive tiles)
+    const sequences = [
+        ['tiles/B1.png', 'tiles/B2.png', 'tiles/B3.png'],
+        ['tiles/B2.png', 'tiles/B3.png', 'tiles/B4.png'],
+        ['tiles/B3.png', 'tiles/B4.png', 'tiles/B5.png'],
+        ['tiles/B4.png', 'tiles/B5.png', 'tiles/B6.png'],
+        ['tiles/B5.png', 'tiles/B6.png', 'tiles/B7.png'],
+        ['tiles/B6.png', 'tiles/B7.png', 'tiles/B8.png'],
+        ['tiles/B7.png', 'tiles/B8.png', 'tiles/B9.png'],
+        ['tiles/C1.png', 'tiles/C2.png', 'tiles/C3.png'],
+        ['tiles/C2.png', 'tiles/C3.png', 'tiles/C4.png'],
+        ['tiles/C3.png', 'tiles/C4.png', 'tiles/C5.png'],
+        ['tiles/C4.png', 'tiles/C5.png', 'tiles/C6.png'],
+        ['tiles/C5.png', 'tiles/C6.png', 'tiles/C7.png'],
+        ['tiles/C6.png', 'tiles/C7.png', 'tiles/C8.png'],
+        ['tiles/C7.png', 'tiles/C8.png', 'tiles/C9.png'],
+        ['tiles/D1.png', 'tiles/D2.png', 'tiles/D3.png'],
+        ['tiles/D2.png', 'tiles/D3.png', 'tiles/D4.png'],
+        ['tiles/D3.png', 'tiles/D4.png', 'tiles/D5.png'],
+        ['tiles/D4.png', 'tiles/D5.png', 'tiles/D6.png'],
+        ['tiles/D5.png', 'tiles/D6.png', 'tiles/D7.png'],
+        ['tiles/D6.png', 'tiles/D7.png', 'tiles/D8.png'],
+        ['tiles/D7.png', 'tiles/D8.png', 'tiles/D9.png']
+    ];
+    
+    // Define different triplets (3 identical tiles)
+    const triplets = [
+        ['tiles/C1.png', 'tiles/C1.png', 'tiles/C1.png'],
+        ['tiles/B2.png', 'tiles/B2.png', 'tiles/B2.png'],
+        ['tiles/D3.png', 'tiles/D3.png', 'tiles/D3.png'],
+        ['tiles/C4.png', 'tiles/C4.png', 'tiles/C4.png'],
+        ['tiles/B5.png', 'tiles/B5.png', 'tiles/B5.png'],
+        ['tiles/D6.png', 'tiles/D6.png', 'tiles/D6.png'],
+        ['tiles/C7.png', 'tiles/C7.png', 'tiles/C7.png'],
+        ['tiles/B8.png', 'tiles/B8.png', 'tiles/B8.png'],
+        ['tiles/D9.png', 'tiles/D9.png', 'tiles/D9.png'],
+        ['tiles/R.png', 'tiles/R.png', 'tiles/R.png'],
+        ['tiles/F.png', 'tiles/F.png', 'tiles/F.png'],
+        ['tiles/WH.png', 'tiles/WH.png', 'tiles/WH.png'],
+        ['tiles/E.png', 'tiles/E.png', 'tiles/E.png'],
+        ['tiles/S.png', 'tiles/S.png', 'tiles/S.png'],
+        ['tiles/W.png', 'tiles/W.png', 'tiles/W.png'],
+        ['tiles/N.png', 'tiles/N.png', 'tiles/N.png']
+    ];
+    
+    // Get current tile configuration
+    function getCurrentTiles(container) {
+        const tiles = Array.from(container.querySelectorAll('.winning-hand-tile img'));
+        return tiles.map(img => {
+            const src = img.src || img.getAttribute('src');
+            // Extract filename from path
+            const filename = src.split('/').pop() || src.split('\\').pop();
+            // Ensure it starts with 'tiles/'
+            return filename.startsWith('tiles/') ? filename : 'tiles/' + filename;
+        });
+    }
+    
+    // Get a random different configuration
+    function getRandomDifferent(currentTiles, options) {
+        // Normalize current tiles format
+        const normalizedCurrent = currentTiles.map(t => {
+            if (t.startsWith('tiles/')) return t;
+            return 'tiles/' + t;
+        });
+        
+        let newOption;
+        let attempts = 0;
+        do {
+            newOption = options[Math.floor(Math.random() * options.length)];
+            attempts++;
+            // Prevent infinite loop
+            if (attempts > 50) break;
+        } while (JSON.stringify(newOption) === JSON.stringify(normalizedCurrent));
+        return newOption;
+    }
+    
+    // Switch tiles with animation
+    function switchTiles(container, newTiles) {
+        const tileImgs = Array.from(container.querySelectorAll('.winning-hand-tile img'));
+        const tileContainers = Array.from(container.querySelectorAll('.winning-hand-tile'));
+        
+        if (tileImgs.length !== newTiles.length) return;
+        
+        // Animate out
+        tileContainers.forEach((container, index) => {
+            container.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease';
+            container.style.transform = 'scale(0.8) rotateY(90deg)';
+            container.style.opacity = '0';
+        });
+        
+        // Change images and animate in
+        setTimeout(() => {
+            tileImgs.forEach((img, index) => {
+                img.src = newTiles[index];
+                // Preload image
+                const preloadImg = new Image();
+                preloadImg.src = newTiles[index];
+            });
+            
+            tileContainers.forEach((container, index) => {
+                setTimeout(() => {
+                    container.style.transform = 'scale(1) rotateY(0deg)';
+                    container.style.opacity = '1';
+                }, index * 30); // Stagger animation
+            });
+            
+            // Reset transition after animation
+            setTimeout(() => {
+                tileContainers.forEach(container => {
+                    container.style.transition = '';
+                });
+            }, 500);
+        }, 300);
+    }
+    
+    // Setup click handlers for pairs
+    const pairGroups = document.querySelectorAll('.winning-hand-pair');
+    pairGroups.forEach(group => {
+        const tilesContainer = group.querySelector('.winning-hand-tiles');
+        if (!tilesContainer) return;
+        
+        const tiles = tilesContainer.querySelectorAll('.winning-hand-tile');
+        tiles.forEach(tile => {
+            tile.style.cursor = 'pointer';
+            tile.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const currentTiles = getCurrentTiles(tilesContainer);
+                const newTiles = getRandomDifferent(currentTiles, pairs);
+                switchTiles(tilesContainer, newTiles);
+            });
+        });
+    });
+    
+    // Setup click handlers for sequences
+    const sequenceGroups = document.querySelectorAll('.winning-hand-sequence');
+    sequenceGroups.forEach(group => {
+        const tilesContainer = group.querySelector('.winning-hand-tiles');
+        if (!tilesContainer) return;
+        
+        const tiles = tilesContainer.querySelectorAll('.winning-hand-tile');
+        tiles.forEach(tile => {
+            tile.style.cursor = 'pointer';
+            tile.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const currentTiles = getCurrentTiles(tilesContainer);
+                const newTiles = getRandomDifferent(currentTiles, sequences);
+                switchTiles(tilesContainer, newTiles);
+            });
+        });
+    });
+    
+    // Setup click handlers for triplets
+    const tripletGroups = document.querySelectorAll('.winning-hand-triplet');
+    tripletGroups.forEach(group => {
+        const tilesContainer = group.querySelector('.winning-hand-tiles');
+        if (!tilesContainer) return;
+        
+        const tiles = tilesContainer.querySelectorAll('.winning-hand-tile');
+        tiles.forEach(tile => {
+            tile.style.cursor = 'pointer';
+            tile.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const currentTiles = getCurrentTiles(tilesContainer);
+                const newTiles = getRandomDifferent(currentTiles, triplets);
+                switchTiles(tilesContainer, newTiles);
+            });
+        });
+    });
+}
+
+// Setup Tile Combination Animation (for 【Tile combinations】section)
+// Setup Emoji Assistant Mascot
+function setupEmojiAssistant() {
+    const assistant = document.getElementById('emojiAssistant');
+    const speechBubble = document.getElementById('speechBubble');
+    const pupils = document.querySelectorAll('.eye-pupil');
+    
+    if (!assistant || !speechBubble) return;
+
+    // Show assistant with fade-in
+    setTimeout(() => {
+        assistant.classList.add('visible');
+    }, 1000);
+
+    // 1. Eyes following mouse
+    document.addEventListener('mousemove', (e) => {
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+
+        pupils.forEach(pupil => {
+            const rect = pupil.getBoundingClientRect();
+            const pupilX = rect.left + rect.width / 2;
+            const pupilY = rect.top + rect.height / 2;
+
+            const angle = Math.atan2(mouseY - pupilY, mouseX - pupilX);
+            const distance = Math.min(5, Math.hypot(mouseX - pupilX, mouseY - pupilY) / 50);
+
+            const translateX = Math.cos(angle) * distance;
+            const translateY = Math.sin(angle) * distance;
+
+            pupil.style.transform = `translate(${translateX}px, ${translateY}px)`;
+        });
+    });
+
+    // 2. Click tile listener to speak
+    const tileNameMap = {
+        'B1': 'One Bamboo', 'B2': 'Two Bamboo', 'B3': 'Three Bamboo', 'B4': 'Four Bamboo', 'B5': 'Five Bamboo', 'B6': 'Six Bamboo', 'B7': 'Seven Bamboo', 'B8': 'Eight Bamboo', 'B9': 'Nine Bamboo',
+        'C1': 'One Character', 'C2': 'Two Character', 'C3': 'Three Character', 'C4': 'Four Character', 'C5': 'Five Character', 'C6': 'Six Character', 'C7': 'Seven Character', 'C8': 'Eight Character', 'C9': 'Nine Character',
+        'D1': 'One Dot', 'D2': 'Two Dot', 'D3': 'Three Dot', 'D4': 'Four Dot', 'D5': 'Five Dot', 'D6': 'Six Dot', 'D7': 'Seven Dot', 'D8': 'Eight Dot', 'D9': 'Nine Dot',
+        'E': 'East Wind', 'S': 'South Wind', 'W': 'West Wind', 'N': 'North Wind',
+        'R': 'Red Dragon', 'F': 'Green Dragon', 'WH': 'White Dragon'
+    };
+
+    let speechTimeout;
+
+    function speak(text) {
+        if (!text) return;
+        speechBubble.textContent = text;
+        speechBubble.classList.add('show');
+        assistant.classList.add('talking');
+
+        // Reset the bubble after a delay
+        if (speechTimeout) clearTimeout(speechTimeout);
+        speechTimeout = setTimeout(() => {
+            speechBubble.classList.remove('show');
+            assistant.classList.remove('talking');
+        }, 2500);
+    }
+
+    // Initial greeting
+    setTimeout(() => {
+        speak("Welcome! I'm your Mahjong guide!");
+    }, 2000);
+
+    // Global listener for mahjong tile clicks - using capture phase (true)
+    // because many individual tile handlers use stopPropagation()
+    document.addEventListener('click', (e) => {
+        const tileContainer = e.target.closest('.tile-img-container');
+        if (tileContainer) {
+            const img = tileContainer.querySelector('img');
+            if (img) {
+                const src = img.getAttribute('src');
+                if (src) {
+                    // Extract filename without path and extension
+                    const parts = src.split(/[/\\]/);
+                    const filenameWithExt = parts[parts.length - 1];
+                    const filename = filenameWithExt.split('.')[0];
+                    
+                    const name = tileNameMap[filename] || 'Mahjong Tile';
+                    speak(name);
+                }
+            }
+        }
+    }, true);
+}
+
+function setupTileCombinationAnimation() {
+    // Define different pairs (2 identical tiles)
+    const pairs = [
+        ['tiles/D1.png', 'tiles/D1.png'],
+        ['tiles/B2.png', 'tiles/B2.png'],
+        ['tiles/C3.png', 'tiles/C3.png'],
+        ['tiles/D4.png', 'tiles/D4.png'],
+        ['tiles/B5.png', 'tiles/B5.png'],
+        ['tiles/C6.png', 'tiles/C6.png'],
+        ['tiles/D7.png', 'tiles/D7.png'],
+        ['tiles/B8.png', 'tiles/B8.png'],
+        ['tiles/C9.png', 'tiles/C9.png'],
+        ['tiles/R.png', 'tiles/R.png'],
+        ['tiles/F.png', 'tiles/F.png'],
+        ['tiles/WH.png', 'tiles/WH.png']
+    ];
+    
+    // Define different sequences (3 consecutive tiles)
+    const sequences = [
+        ['tiles/B1.png', 'tiles/B2.png', 'tiles/B3.png'],
+        ['tiles/B2.png', 'tiles/B3.png', 'tiles/B4.png'],
+        ['tiles/B3.png', 'tiles/B4.png', 'tiles/B5.png'],
+        ['tiles/B4.png', 'tiles/B5.png', 'tiles/B6.png'],
+        ['tiles/B5.png', 'tiles/B6.png', 'tiles/B7.png'],
+        ['tiles/B6.png', 'tiles/B7.png', 'tiles/B8.png'],
+        ['tiles/B7.png', 'tiles/B8.png', 'tiles/B9.png'],
+        ['tiles/C1.png', 'tiles/C2.png', 'tiles/C3.png'],
+        ['tiles/C2.png', 'tiles/C3.png', 'tiles/C4.png'],
+        ['tiles/C3.png', 'tiles/C4.png', 'tiles/C5.png'],
+        ['tiles/C4.png', 'tiles/C5.png', 'tiles/C6.png'],
+        ['tiles/C5.png', 'tiles/C6.png', 'tiles/C7.png'],
+        ['tiles/C6.png', 'tiles/C7.png', 'tiles/C8.png'],
+        ['tiles/C7.png', 'tiles/C8.png', 'tiles/C9.png'],
+        ['tiles/D1.png', 'tiles/D2.png', 'tiles/D3.png'],
+        ['tiles/D2.png', 'tiles/D3.png', 'tiles/D4.png'],
+        ['tiles/D3.png', 'tiles/D4.png', 'tiles/D5.png'],
+        ['tiles/D4.png', 'tiles/D5.png', 'tiles/D6.png'],
+        ['tiles/D5.png', 'tiles/D6.png', 'tiles/D7.png'],
+        ['tiles/D6.png', 'tiles/D7.png', 'tiles/D8.png'],
+        ['tiles/D7.png', 'tiles/D8.png', 'tiles/D9.png']
+    ];
+    
+    // Define different triplets (3 identical tiles)
+    const triplets = [
+        ['tiles/C1.png', 'tiles/C1.png', 'tiles/C1.png'],
+        ['tiles/B2.png', 'tiles/B2.png', 'tiles/B2.png'],
+        ['tiles/D3.png', 'tiles/D3.png', 'tiles/D3.png'],
+        ['tiles/C4.png', 'tiles/C4.png', 'tiles/C4.png'],
+        ['tiles/B5.png', 'tiles/B5.png', 'tiles/B5.png'],
+        ['tiles/D6.png', 'tiles/D6.png', 'tiles/D6.png'],
+        ['tiles/C7.png', 'tiles/C7.png', 'tiles/C7.png'],
+        ['tiles/B8.png', 'tiles/B8.png', 'tiles/B8.png'],
+        ['tiles/D9.png', 'tiles/D9.png', 'tiles/D9.png'],
+        ['tiles/R.png', 'tiles/R.png', 'tiles/R.png'],
+        ['tiles/F.png', 'tiles/F.png', 'tiles/F.png'],
+        ['tiles/WH.png', 'tiles/WH.png', 'tiles/WH.png'],
+        ['tiles/E.png', 'tiles/E.png', 'tiles/E.png'],
+        ['tiles/S.png', 'tiles/S.png', 'tiles/S.png'],
+        ['tiles/W.png', 'tiles/W.png', 'tiles/W.png'],
+        ['tiles/N.png', 'tiles/N.png', 'tiles/N.png']
+    ];
+    
+    // Get current tile configuration
+    function getCurrentTiles(container) {
+        const tiles = Array.from(container.querySelectorAll('.tile-combination-tile img'));
+        return tiles.map(img => {
+            const src = img.src || img.getAttribute('src');
+            // Extract filename from path
+            const filename = src.split('/').pop() || src.split('\\').pop();
+            // Ensure it starts with 'tiles/'
+            return filename.startsWith('tiles/') ? filename : 'tiles/' + filename;
+        });
+    }
+    
+    // Get a random different configuration
+    function getRandomDifferent(currentTiles, options) {
+        // Normalize current tiles format
+        const normalizedCurrent = currentTiles.map(t => {
+            if (t.startsWith('tiles/')) return t;
+            return 'tiles/' + t;
+        });
+        
+        let newOption;
+        let attempts = 0;
+        do {
+            newOption = options[Math.floor(Math.random() * options.length)];
+            attempts++;
+            // Prevent infinite loop
+            if (attempts > 50) break;
+        } while (JSON.stringify(newOption) === JSON.stringify(normalizedCurrent));
+        return newOption;
+    }
+    
+    // Switch tiles with animation
+    function switchTiles(container, newTiles) {
+        const tileImgs = Array.from(container.querySelectorAll('.tile-combination-tile img'));
+        const tileContainers = Array.from(container.querySelectorAll('.tile-combination-tile'));
+        
+        if (tileImgs.length !== newTiles.length) return;
+        
+        // Animate out
+        tileContainers.forEach((container, index) => {
+            container.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease';
+            container.style.transform = 'scale(0.8) rotateY(90deg)';
+            container.style.opacity = '0';
+        });
+        
+        // Change images and animate in
+        setTimeout(() => {
+            tileImgs.forEach((img, index) => {
+                img.src = newTiles[index];
+                // Preload image
+                const preloadImg = new Image();
+                preloadImg.src = newTiles[index];
+            });
+            
+            tileContainers.forEach((container, index) => {
+                setTimeout(() => {
+                    container.style.transform = 'scale(1) rotateY(0deg)';
+                    container.style.opacity = '1';
+                }, index * 30); // Stagger animation
+            });
+            
+            // Reset transition after animation
+            setTimeout(() => {
+                tileContainers.forEach(container => {
+                    container.style.transition = '';
+                });
+            }, 500);
+        }, 300);
+    }
+    
+    // Setup click handlers for pairs
+    const pairGroups = document.querySelectorAll('.tile-combination-pair');
+    pairGroups.forEach(group => {
+        const tilesContainer = group.querySelector('.tile-combination-tiles');
+        if (!tilesContainer) return;
+        
+        const tiles = tilesContainer.querySelectorAll('.tile-combination-tile');
+        tiles.forEach(tile => {
+            tile.style.cursor = 'pointer';
+            tile.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const currentTiles = getCurrentTiles(tilesContainer);
+                const newTiles = getRandomDifferent(currentTiles, pairs);
+                switchTiles(tilesContainer, newTiles);
+            });
+        });
+    });
+    
+    // Setup click handlers for sequences
+    const sequenceGroups = document.querySelectorAll('.tile-combination-sequence');
+    sequenceGroups.forEach(group => {
+        const tilesContainer = group.querySelector('.tile-combination-tiles');
+        if (!tilesContainer) return;
+        
+        const tiles = tilesContainer.querySelectorAll('.tile-combination-tile');
+        tiles.forEach(tile => {
+            tile.style.cursor = 'pointer';
+            tile.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const currentTiles = getCurrentTiles(tilesContainer);
+                const newTiles = getRandomDifferent(currentTiles, sequences);
+                switchTiles(tilesContainer, newTiles);
+            });
+        });
+    });
+    
+    // Setup click handlers for triplets
+    const tripletGroups = document.querySelectorAll('.tile-combination-triplet');
+    tripletGroups.forEach(group => {
+        const tilesContainer = group.querySelector('.tile-combination-tiles');
+        if (!tilesContainer) return;
+        
+        const tiles = tilesContainer.querySelectorAll('.tile-combination-tile');
+        tiles.forEach(tile => {
+            tile.style.cursor = 'pointer';
+            tile.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const currentTiles = getCurrentTiles(tilesContainer);
+                const newTiles = getRandomDifferent(currentTiles, triplets);
+                switchTiles(tilesContainer, newTiles);
+            });
+        });
+    });
+}
+
+// Setup Seven Pairs Animation
+function setupSevenPairsAnimation() {
+    const sevenPairsTiles = document.querySelectorAll('.seven-pairs-tile');
+    if (sevenPairsTiles.length === 0) return;
+    
+    let isAnimating = false;
+    
+    // Add click event to all tiles
+    sevenPairsTiles.forEach(tile => {
+        tile.style.cursor = 'pointer';
+        tile.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (isAnimating) return;
+            animateSevenPairs();
+        });
+    });
+    
+    function animateSevenPairs() {
+        isAnimating = true;
+        const tiles = Array.from(sevenPairsTiles);
+        const tilesContainer = document.querySelector('.seven-pairs-tiles');
+        const wrapper = document.querySelector('.seven-pairs-wrapper');
+        
+        // Store original positions relative to container
+        const originalPositions = tiles.map(tile => {
+            const rect = tile.getBoundingClientRect();
+            const containerRect = tilesContainer.getBoundingClientRect();
+            return {
+                left: rect.left - containerRect.left,
+                top: rect.top - containerRect.top,
+                width: rect.width,
+                height: rect.height,
+                element: tile
+            };
+        });
+        
+        // Group tiles into pairs (0-1, 2-3, 4-5, 6-7, 8-9, 10-11, 12-13)
+        const pairs = [];
+        for (let i = 0; i < tiles.length; i += 2) {
+            pairs.push([tiles[i], tiles[i + 1]]);
+        }
+        
+        // Calculate center position for each pair (relative to container)
+        const pairCenters = pairs.map((pair, pairIndex) => {
+            const pos1 = originalPositions[pairIndex * 2];
+            const pos2 = originalPositions[pairIndex * 2 + 1];
+            return {
+                left: (pos1.left + pos2.left) / 2,
+                top: (pos1.top + pos2.top) / 2
+            };
+        });
+        
+        // Set container to relative positioning for heart placement
+        tilesContainer.style.position = 'relative';
+        
+        // Animate each pair sequentially
+        pairs.forEach((pair, pairIndex) => {
+            const delay = pairIndex * 200; // 200ms delay between each pair
+            
+            setTimeout(() => {
+                const [tile1, tile2] = pair;
+                const center = pairCenters[pairIndex];
+                const originalPos1 = originalPositions[pairIndex * 2];
+                const originalPos2 = originalPositions[pairIndex * 2 + 1];
+                
+                // Calculate movement distance (half the distance between the two tiles)
+                const moveDistance = Math.abs(originalPos2.left - originalPos1.left) / 2;
+                
+                // Use transform only, don't change position - keeps layout stable
+                tile1.style.zIndex = '10';
+                tile2.style.zIndex = '10';
+                tile1.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                tile2.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                
+                // Animate collision using transform only
+                requestAnimationFrame(() => {
+                    // Move tiles towards each other using transform
+                    tile1.style.transform = `translateX(${moveDistance}px) scale(1.1)`;
+                    tile2.style.transform = `translateX(${-moveDistance}px) scale(1.1)`;
+                    
+                    // After collision, show heart
+                    setTimeout(() => {
+                        // Reset scale but keep translateX for visual effect
+                        tile1.style.transform = `translateX(${moveDistance}px) scale(1)`;
+                        tile2.style.transform = `translateX(${-moveDistance}px) scale(1)`;
+                        
+                        // Create heart element
+                        const heart = document.createElement('div');
+                        heart.className = 'seven-pairs-heart';
+                        heart.innerHTML = '❤️';
+                        heart.style.position = 'absolute';
+                        heart.style.left = center.left + 'px';
+                        heart.style.top = (center.top - 30) + 'px';
+                        heart.style.fontSize = '24px';
+                        heart.style.zIndex = '20';
+                        heart.style.pointerEvents = 'none';
+                        heart.style.opacity = '0';
+                        heart.style.transform = 'translateY(0) scale(0)';
+                        heart.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                        
+                        tilesContainer.appendChild(heart);
+                        
+                        // Animate heart appearance
+                        requestAnimationFrame(() => {
+                            heart.style.opacity = '1';
+                            heart.style.transform = 'translateY(-20px) scale(1.2)';
+                            
+                            // After animation, fade out
+                            setTimeout(() => {
+                                heart.style.opacity = '0';
+                                heart.style.transform = 'translateY(-40px) scale(0.8)';
+                                setTimeout(() => {
+                                    heart.remove();
+                                }, 500);
+                            }, 1500);
+                        });
+                        
+                        // Reset tiles transform after animation
+                        setTimeout(() => {
+                            tile1.style.transform = '';
+                            tile1.style.zIndex = '';
+                            tile2.style.transform = '';
+                            tile2.style.zIndex = '';
+                            tile1.style.transition = '';
+                            tile2.style.transition = '';
+                        }, 2000);
+                        
+                        // Re-enable animation after all pairs are done
+                        if (pairIndex === pairs.length - 1) {
+                            setTimeout(() => {
+                                isAnimating = false;
+                            }, 2000);
+                        }
+                    }, 400);
+                });
+            }, delay);
+        });
+    }
 }
 
 // Setup Dragon Tile Transformation Animation
-function setupDragonTileAnimation() {
+function setupDragonAnimations() {
+    // 1. Red Dragon (Existing flip animation)
     const redDragonTile = document.querySelector('.dragon-red-tile');
-    if (!redDragonTile) return;
+    if (redDragonTile) {
+        setupRedDragonFlip(redDragonTile);
+    }
     
-    const tileImg = redDragonTile.querySelector('.tile-img');
+    // 2. Green Dragon (Fa / 发财 - Wealth animation)
+    const greenDragonTile = document.querySelector('.tile-img-container[data-tile="dragon-green"]');
+    if (greenDragonTile) {
+        setupGreenDragonWealth(greenDragonTile);
+    }
+    
+    // 3. White Dragon (Bai / 白板 - Smooth 360 Rotation)
+    const whiteDragonTile = document.querySelector('.tile-img-container[data-tile="dragon-white"]');
+    if (whiteDragonTile) {
+        setupWhiteDragonRotate(whiteDragonTile);
+    }
+}
+
+function setupRedDragonFlip(tile) {
+    const tileImg = tile.querySelector('.tile-img');
     if (!tileImg) return;
     
-    // List of all available tile images (excluding the red dragon itself)
     const allTiles = [
         'tiles/B1.png', 'tiles/B2.png', 'tiles/B3.png', 'tiles/B4.png', 'tiles/B5.png', 'tiles/B6.png', 'tiles/B7.png', 'tiles/B8.png', 'tiles/B9.png',
         'tiles/C1.png', 'tiles/C2.png', 'tiles/C3.png', 'tiles/C4.png', 'tiles/C5.png', 'tiles/C6.png', 'tiles/C7.png', 'tiles/C8.png', 'tiles/C9.png',
@@ -1206,60 +1963,133 @@ function setupDragonTileAnimation() {
     
     const originalSrc = tileImg.src;
     let isAnimating = false;
+    tile.style.cursor = 'pointer';
     
-    redDragonTile.style.cursor = 'pointer';
-    
-    redDragonTile.addEventListener('click', function(e) {
+    tile.addEventListener('click', function(e) {
         e.stopPropagation();
-        
-        // Prevent multiple animations
         if (isAnimating) return;
-        
         isAnimating = true;
         
-        // Randomly select a tile (excluding red dragon)
         const randomTile = allTiles[Math.floor(Math.random() * allTiles.length)];
         
-        // Phase 1: Transform to random tile (flip out)
         requestAnimationFrame(() => {
             tileImg.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease';
             tileImg.style.transform = 'scale(0.8) rotateY(90deg)';
             tileImg.style.opacity = '0';
             
             setTimeout(() => {
-                // Change image
                 tileImg.src = randomTile;
-                
-                // Phase 2: Show random tile (flip in)
                 requestAnimationFrame(() => {
                     tileImg.style.transform = 'scale(1) rotateY(0deg)';
                     tileImg.style.opacity = '1';
                     
                     setTimeout(() => {
-                        // Phase 3: Transform back to red dragon (flip out)
                         tileImg.style.transform = 'scale(0.8) rotateY(-90deg)';
                         tileImg.style.opacity = '0';
                         
                         setTimeout(() => {
-                            // Change back to red dragon
                             tileImg.src = originalSrc;
-                            
-                            // Phase 4: Show red dragon again (flip in)
                             requestAnimationFrame(() => {
                                 tileImg.style.transform = 'scale(1) rotateY(0deg)';
                                 tileImg.style.opacity = '1';
-                                
                                 setTimeout(() => {
-                                    // Reset transition
                                     tileImg.style.transition = '';
                                     isAnimating = false;
                                 }, 500);
                             });
                         }, 500);
-                    }, 800); // Show random tile for 800ms
+                    }, 800);
                 });
             }, 500);
         });
+    });
+}
+
+function setupGreenDragonWealth(tile) {
+    const dragonGroup = document.querySelector('.dragon-group');
+    const animationContainer = dragonGroup ? dragonGroup.querySelector('.dragon-animation-container') : null;
+    if (!animationContainer) return;
+
+    let isAnimating = false;
+    tile.style.cursor = 'pointer';
+
+    tile.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (isAnimating) return;
+        isAnimating = true;
+
+        // Visual feedback on tile
+        tile.classList.add('wealth-glow');
+        
+        const containerRect = dragonGroup.getBoundingClientRect();
+        const tileRect = tile.getBoundingClientRect();
+        const startX = (tileRect.left + tileRect.width / 2) - containerRect.left;
+        const startY = (tileRect.top + tileRect.height / 2) - containerRect.top;
+
+        // Create burst of gold coins
+        const numCoins = 15 + Math.floor(Math.random() * 10);
+        for (let i = 0; i < numCoins; i++) {
+            const coin = createGoldCoin(startX, startY);
+            animationContainer.appendChild(coin);
+            
+            // Cleanup coin after animation
+            setTimeout(() => coin.remove(), 2500);
+        }
+
+        setTimeout(() => {
+            tile.classList.remove('wealth-glow');
+            isAnimating = false;
+        }, 2000);
+    });
+}
+
+function createGoldCoin(x, y) {
+    const coin = document.createElement('div');
+    coin.className = 'gold-coin';
+    
+    const size = 15 + Math.random() * 15;
+    const angle = Math.random() * Math.PI * 2;
+    const velocity = 5 + Math.random() * 10;
+    const tx = Math.cos(angle) * (100 + Math.random() * 150);
+    const ty = Math.sin(angle) * (100 + Math.random() * 150) - 50; // Tend to go up slightly then fall
+
+    coin.style.width = size + 'px';
+    coin.style.height = size + 'px';
+    coin.style.left = x + 'px';
+    coin.style.top = y + 'px';
+    coin.style.setProperty('--tx', tx + 'px');
+    coin.style.setProperty('--ty', ty + 'px');
+    coin.style.setProperty('--rot', (Math.random() * 720) + 'deg');
+    
+    return coin;
+}
+
+function setupWhiteDragonRotate(tile) {
+    let isAnimating = false;
+    tile.style.cursor = 'pointer';
+    tile.style.perspective = '1000px'; // Enable 3D perspective
+
+    const tileImg = tile.querySelector('.tile-img');
+    if (!tileImg) return;
+
+    tile.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (isAnimating) return;
+        isAnimating = true;
+
+        // Visual feedback: Smooth 360 degree Y-axis rotation with a shine effect
+        tile.classList.add('white-dragon-rotate');
+        
+        // Add a temporary shine element for extra "beauty"
+        const shine = document.createElement('div');
+        shine.className = 'tile-rotation-shine';
+        tile.appendChild(shine);
+
+        setTimeout(() => {
+            tile.classList.remove('white-dragon-rotate');
+            shine.remove();
+            isAnimating = false;
+        }, 1000); // Animation duration is 1s
     });
 }
 
@@ -1334,6 +2164,8 @@ function setupLoadingPage() {
         // Start typing animation after loading page is hidden
         setTimeout(function() {
             addTypingAnimation();
+            // Setup connection line after content is loaded
+            setupThirteenOrphansConnectionLine();
         }, 600);
         
         // Remove loading page from DOM after animation
@@ -1360,9 +2192,113 @@ function setupLoadingPage() {
     }, 3000);
 }
 
+// Setup connection line for Thirteen Orphans
+function setupThirteenOrphansConnectionLine() {
+    const demo = document.querySelector('.thirteen-orphans-demo');
+    if (!demo) return;
+    
+    const lastTile = demo.querySelector('.tile-special-highlight');
+    const annotation = demo.querySelector('.special-annotation');
+    const connectionLine = demo.querySelector('.thirteen-orphans-connection-line');
+    
+    if (!lastTile || !annotation || !connectionLine) return;
+    
+    function updateConnectionLine() {
+        // Get positions
+        const lastTileRect = lastTile.getBoundingClientRect();
+        const annotationRect = annotation.getBoundingClientRect();
+        const demoRect = demo.getBoundingClientRect();
+        
+        // Calculate relative positions within demo container
+        const lastTileBottom = lastTileRect.bottom - demoRect.top;
+        const lastTileCenterX = lastTileRect.left + lastTileRect.width / 2 - demoRect.left;
+        
+        const annotationTop = annotationRect.top - demoRect.top;
+        const annotationCenterY = annotationRect.top + annotationRect.height / 2 - demoRect.top;
+        const annotationRight = annotationRect.right - demoRect.left;
+        
+        // Calculate line dimensions
+        const verticalLength = annotationCenterY - lastTileBottom;
+        const horizontalLength = lastTileCenterX - annotationRight;
+        
+        // Set connection line position and dimensions
+        connectionLine.style.left = lastTileCenterX + 'px';
+        connectionLine.style.top = lastTileBottom + 'px';
+        
+        // Vertical line (down from tile)
+        connectionLine.style.setProperty('--vertical-length', verticalLength + 'px');
+        
+        // Horizontal line (left to annotation right edge)
+        connectionLine.style.setProperty('--horizontal-length', Math.abs(horizontalLength) + 'px');
+        connectionLine.style.setProperty('--horizontal-top', verticalLength + 'px');
+    }
+    
+    // Update on load and resize
+    updateConnectionLine();
+    window.addEventListener('resize', updateConnectionLine);
+    
+    // Also update after a short delay to ensure all elements are rendered
+    setTimeout(updateConnectionLine, 100);
+}
+
+// Setup Thirteen Orphans Animation
+function setupThirteenOrphansAnimation() {
+    const demo = document.querySelector('.thirteen-orphans-demo');
+    if (!demo) return;
+    
+    const tilesContainer = demo.querySelector('.thirteen-orphans-tiles');
+    if (!tilesContainer) return;
+    
+    const tiles = Array.from(tilesContainer.querySelectorAll('.thirteen-orphans-tile'));
+    const connectionLine = demo.querySelector('.thirteen-orphans-connection-line');
+    
+    let isAnimating = false;
+    
+    tiles.forEach((tile, index) => {
+        tile.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (isAnimating) return;
+            isAnimating = true;
+            
+            // Pulse wave starting from clicked tile
+            const clickedIndex = index;
+            
+            tiles.forEach((t, i) => {
+                // Calculate delay based on distance from clicked tile
+                const distance = Math.abs(i - clickedIndex);
+                const delay = distance * 60;
+                
+                setTimeout(() => {
+                    // Trigger jump animation
+                    t.classList.add('animating');
+                    t.classList.add('pulse-glow');
+                    
+                    // Cleanup classes after animation ends
+                    setTimeout(() => {
+                        t.classList.remove('animating');
+                        t.classList.remove('pulse-glow');
+                        
+                        // Re-enable animation after the last tile in the wave finishes its animation
+                        if (i === tiles.length - 1) {
+                            isAnimating = false;
+                        }
+                    }, 800);
+                    
+                }, delay);
+            });
+        });
+    });
+}
+
 function init() {
     // Setup loading page
     setupLoadingPage();
+    
+    // Setup connection line for Thirteen Orphans
+    setupThirteenOrphansConnectionLine();
+    
+    // Setup Thirteen Orphans interaction animation
+    setupThirteenOrphansAnimation();
     
     // 首先确保回到顶部按钮位置正确
     ensureBackToTopPosition();
@@ -1392,7 +2328,19 @@ function init() {
     setupWindAnimation();
     
     // Setup dragon tile transformation animation
-    setupDragonTileAnimation();
+    setupDragonAnimations();
+    
+    // Setup Seven Pairs animation
+    setupSevenPairsAnimation();
+    
+    // Setup Winning Hand tile switching animation
+    setupWinningHandAnimation();
+    
+    // Setup Tile Combination animation (for 【Tile combinations】section)
+    setupTileCombinationAnimation();
+    
+    // Setup Emoji Assistant
+    setupEmojiAssistant();
     
     // Add tile interactions
     addTileClickAnimation();

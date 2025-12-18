@@ -172,6 +172,7 @@
                             </div>
                             <div class="honor-group dragon-group">
                                 <h5>Dragon Tiles</h5>
+                                <div class="dragon-animation-container"></div>
                                 <div class="tiles-row">
                                     <div class="tile-with-label">
                                         <div class="tile-img-container honor-tile special dragon-red-tile" data-tile="dragon-red"><img src="tiles/R.png" alt="🀄" class="tile-img"></div>
@@ -195,35 +196,35 @@
                         <h4 class="category-title">【Tile combinations】</h4>
                         
                         <div class="combination-examples">
-                            <div class="combination-item">
+                            <div class="combination-item tile-combination-pair">
                                 <h5>Pair</h5>
                                 <p>A set of two identical tiles.</p>
                                 <div class="example-visual">
-                                    <div class="tiles-in-hand">
-                                        <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
-                                        <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
+                                    <div class="tiles-in-hand tile-combination-tiles">
+                                        <div class="tile-img-container tile-combination-tile"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
+                                        <div class="tile-img-container tile-combination-tile"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="combination-item">
+                            <div class="combination-item tile-combination-triplet">
                                 <h5>Triplet</h5>
                                 <p>Three identical tiles.</p>
                                 <div class="example-visual">
-                                    <div class="tiles-in-hand">
-                                        <div class="tile-img-container"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
-                                        <div class="tile-img-container"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
-                                        <div class="tile-img-container"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
+                                    <div class="tiles-in-hand tile-combination-tiles">
+                                        <div class="tile-img-container tile-combination-tile"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
+                                        <div class="tile-img-container tile-combination-tile"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
+                                        <div class="tile-img-container tile-combination-tile"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="combination-item">
+                            <div class="combination-item tile-combination-sequence">
                                 <h5>Sequence</h5>
                                 <p>Three consecutive tiles of the same suit.</p>
                                 <div class="example-visual">
-                                    <div class="tiles-in-hand">
-                                        <div class="tile-img-container"><img src="tiles/B1.png" alt="🀐" class="tile-img"></div>
-                                        <div class="tile-img-container"><img src="tiles/B2.png" alt="🀑" class="tile-img"></div>
-                                        <div class="tile-img-container"><img src="tiles/B3.png" alt="🀒" class="tile-img"></div>
+                                    <div class="tiles-in-hand tile-combination-tiles">
+                                        <div class="tile-img-container tile-combination-tile"><img src="tiles/B1.png" alt="🀐" class="tile-img"></div>
+                                        <div class="tile-img-container tile-combination-tile"><img src="tiles/B2.png" alt="🀑" class="tile-img"></div>
+                                        <div class="tile-img-container tile-combination-tile"><img src="tiles/B3.png" alt="🀒" class="tile-img"></div>
                                     </div>
                                 </div>
                             </div>
@@ -254,43 +255,43 @@
                             <div class="winning-hand-demo">
                                 <span class="example-label">Example：</span>
                                 <div class="winning-hand-content">
-                                <div class="hand-group">
+                                <div class="hand-group winning-hand-pair">
                                     <div class="hand-label">Pair</div>
-                                    <div class="tiles-in-hand">
-                                        <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
-                                        <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
+                                    <div class="tiles-in-hand winning-hand-tiles">
+                                        <div class="tile-img-container winning-hand-tile"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
+                                        <div class="tile-img-container winning-hand-tile"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
                                     </div>
                                 </div>
-                                <div class="hand-group">
+                                <div class="hand-group winning-hand-sequence">
                                     <div class="hand-label">Sequence</div>
-                                    <div class="tiles-in-hand">
-                                        <div class="tile-img-container"><img src="tiles/B1.png" alt="🀐" class="tile-img"></div>
-                                        <div class="tile-img-container"><img src="tiles/B2.png" alt="🀑" class="tile-img"></div>
-                                        <div class="tile-img-container"><img src="tiles/B3.png" alt="🀒" class="tile-img"></div>
+                                    <div class="tiles-in-hand winning-hand-tiles">
+                                        <div class="tile-img-container winning-hand-tile"><img src="tiles/B1.png" alt="🀐" class="tile-img"></div>
+                                        <div class="tile-img-container winning-hand-tile"><img src="tiles/B2.png" alt="🀑" class="tile-img"></div>
+                                        <div class="tile-img-container winning-hand-tile"><img src="tiles/B3.png" alt="🀒" class="tile-img"></div>
                                     </div>
                                 </div>
-                                <div class="hand-group">
+                                <div class="hand-group winning-hand-triplet">
                                     <div class="hand-label">Triplet</div>
-                                    <div class="tiles-in-hand">
-                                        <div class="tile-img-container"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
-                                        <div class="tile-img-container"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
-                                        <div class="tile-img-container"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
+                                    <div class="tiles-in-hand winning-hand-tiles">
+                                        <div class="tile-img-container winning-hand-tile"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
+                                        <div class="tile-img-container winning-hand-tile"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
+                                        <div class="tile-img-container winning-hand-tile"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
                                     </div>
                                 </div>
-                                <div class="hand-group">
+                                <div class="hand-group winning-hand-sequence">
                                     <div class="hand-label">Sequence</div>
-                                    <div class="tiles-in-hand">
-                                        <div class="tile-img-container"><img src="tiles/D4.png" alt="🀜" class="tile-img"></div>
-                                        <div class="tile-img-container"><img src="tiles/D5.png" alt="🀝" class="tile-img"></div>
-                                        <div class="tile-img-container"><img src="tiles/D6.png" alt="🀞" class="tile-img"></div>
+                                    <div class="tiles-in-hand winning-hand-tiles">
+                                        <div class="tile-img-container winning-hand-tile"><img src="tiles/D4.png" alt="🀜" class="tile-img"></div>
+                                        <div class="tile-img-container winning-hand-tile"><img src="tiles/D5.png" alt="🀝" class="tile-img"></div>
+                                        <div class="tile-img-container winning-hand-tile"><img src="tiles/D6.png" alt="🀞" class="tile-img"></div>
                                     </div>
                                 </div>
-                                <div class="hand-group">
+                                <div class="hand-group winning-hand-sequence">
                                     <div class="hand-label">Sequence</div>
-                                    <div class="tiles-in-hand">
-                                        <div class="tile-img-container"><img src="tiles/C4.png" alt="🀊" class="tile-img"></div>
-                                        <div class="tile-img-container"><img src="tiles/C5.png" alt="🀋" class="tile-img"></div>
-                                        <div class="tile-img-container"><img src="tiles/C6.png" alt="🀌" class="tile-img"></div>
+                                    <div class="tiles-in-hand winning-hand-tiles">
+                                        <div class="tile-img-container winning-hand-tile"><img src="tiles/C4.png" alt="🀊" class="tile-img"></div>
+                                        <div class="tile-img-container winning-hand-tile"><img src="tiles/C5.png" alt="🀋" class="tile-img"></div>
+                                        <div class="tile-img-container winning-hand-tile"><img src="tiles/C6.png" alt="🀌" class="tile-img"></div>
                                     </div>
                                 </div>
                             </div>
@@ -300,29 +301,30 @@
 
                     <div class="example-section" style="margin-top: 40px;">
                         <h4 class="example-title">Special winning hands：</h4>
-                        <p style="margin-bottom: 24px; color: var(--text-light); line-height: 1.8; font-size: 20px;">Besides the regular winning hand, here are two special winning ways. If you want to win in these ways, you cannot claim Pung or Kong during the game. (What Pung and Kong mean will be explained in detail later.)</p>
+                        <p style="margin-bottom: 24px; color: var(--text-light); line-height: 1.8; font-size: 20px;">Besides the regular winning hand, here are two special winning ways. If you want to win in these ways, you cannot claim <a href="javascript:void(0);" class="pung-kong-link" onclick="scrollToStep3Discard(event); return false;">Pung</a> or <a href="javascript:void(0);" class="pung-kong-link" onclick="scrollToStep3Discard(event); return false;">Kong</a> during the game. (What <a href="javascript:void(0);" class="pung-kong-link" onclick="scrollToStep3Discard(event); return false;">Pung</a> and <a href="javascript:void(0);" class="pung-kong-link" onclick="scrollToStep3Discard(event); return false;">Kong</a> mean will be explained in detail later.)</p>
                         
                         <div class="special-winning-hands">
                             <div class="special-hand-item">
                                 <h5 class="special-hand-title">Seven Pairs</h5>
-                                <div class="special-hand-demo">
-                                    <div style="display: flex; align-items: center; gap: 16px;">
-                                        <span style="font-size: 18px; font-weight: 600; color: var(--text-dark); flex-shrink: 0;">Example:</span>
-                                        <div class="tiles-in-hand" style="flex: 1;">
-                                            <div class="tile-img-container"><img src="tiles/B1.png" alt="🀐" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/B1.png" alt="🀐" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/C2.png" alt="🀈" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/C2.png" alt="🀈" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/D3.png" alt="🀛" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/D3.png" alt="🀛" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/B4.png" alt="🀓" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/B4.png" alt="🀓" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/C5.png" alt="🀋" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/C5.png" alt="🀋" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/D6.png" alt="🀞" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/D6.png" alt="🀞" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/R.png" alt="🀄" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/R.png" alt="🀄" class="tile-img"></div>
+                                <p class="special-hand-description">7 identical pairs to form a winning hand</p>
+                                <div class="special-hand-demo seven-pairs-demo">
+                                    <div class="seven-pairs-wrapper" style="display: flex; align-items: center; gap: 16px; width: 100%;">
+                                        <span class="seven-pairs-label" style="font-size: 18px; font-weight: 600; color: var(--text-dark); flex-shrink: 0;">Example:</span>
+                                        <div class="tiles-in-hand seven-pairs-tiles" style="flex: 1;">
+                                            <div class="tile-img-container seven-pairs-tile"><img src="tiles/B1.png" alt="🀐" class="tile-img"></div>
+                                            <div class="tile-img-container seven-pairs-tile"><img src="tiles/B1.png" alt="🀐" class="tile-img"></div>
+                                            <div class="tile-img-container seven-pairs-tile"><img src="tiles/C2.png" alt="🀈" class="tile-img"></div>
+                                            <div class="tile-img-container seven-pairs-tile"><img src="tiles/C2.png" alt="🀈" class="tile-img"></div>
+                                            <div class="tile-img-container seven-pairs-tile"><img src="tiles/D3.png" alt="🀛" class="tile-img"></div>
+                                            <div class="tile-img-container seven-pairs-tile"><img src="tiles/D3.png" alt="🀛" class="tile-img"></div>
+                                            <div class="tile-img-container seven-pairs-tile"><img src="tiles/B4.png" alt="🀓" class="tile-img"></div>
+                                            <div class="tile-img-container seven-pairs-tile"><img src="tiles/B4.png" alt="🀓" class="tile-img"></div>
+                                            <div class="tile-img-container seven-pairs-tile"><img src="tiles/C5.png" alt="🀋" class="tile-img"></div>
+                                            <div class="tile-img-container seven-pairs-tile"><img src="tiles/C5.png" alt="🀋" class="tile-img"></div>
+                                            <div class="tile-img-container seven-pairs-tile"><img src="tiles/D6.png" alt="🀞" class="tile-img"></div>
+                                            <div class="tile-img-container seven-pairs-tile"><img src="tiles/D6.png" alt="🀞" class="tile-img"></div>
+                                            <div class="tile-img-container seven-pairs-tile"><img src="tiles/R.png" alt="🀄" class="tile-img"></div>
+                                            <div class="tile-img-container seven-pairs-tile"><img src="tiles/R.png" alt="🀄" class="tile-img"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -330,24 +332,25 @@
 
                             <div class="special-hand-item">
                                 <h5 class="special-hand-title">Thirteen Orphans</h5>
+                                <p class="special-hand-description">1 and 9 of Bamboo/Character/Dot + 4 Winds + 3 Dragons + 1 duplicate</p>
                                 <div class="special-hand-demo thirteen-orphans-demo">
-                                    <div style="display: flex; align-items: center; gap: 16px;">
-                                        <span style="font-size: 18px; font-weight: 600; color: var(--text-dark); flex-shrink: 0;">Example:</span>
-                                        <div class="tiles-in-hand" style="flex: 1;">
-                                            <div class="tile-img-container"><img src="tiles/B1.png" alt="🀐" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/B9.png" alt="🀘" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/C9.png" alt="🀏" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/D9.png" alt="🀡" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/E.png" alt="🀀" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/S.png" alt="🀁" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/W.png" alt="🀂" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/N.png" alt="🀃" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/R.png" alt="🀄" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/F.png" alt="🀅" class="tile-img"></div>
-                                            <div class="tile-img-container"><img src="tiles/WH.png" alt="🀆" class="tile-img"></div>
-                                            <div class="tile-img-container tile-special-highlight">
+                                    <div class="thirteen-orphans-wrapper" style="display: flex; align-items: center; gap: 16px; width: 100%;">
+                                        <span class="thirteen-orphans-label" style="font-size: 18px; font-weight: 600; color: var(--text-dark); flex-shrink: 0;">Example:</span>
+                                        <div class="tiles-in-hand thirteen-orphans-tiles" style="flex: 1;">
+                                            <div class="tile-img-container thirteen-orphans-tile"><img src="tiles/B1.png" alt="🀐" class="tile-img"></div>
+                                            <div class="tile-img-container thirteen-orphans-tile"><img src="tiles/B9.png" alt="🀘" class="tile-img"></div>
+                                            <div class="tile-img-container thirteen-orphans-tile"><img src="tiles/C1.png" alt="🀇" class="tile-img"></div>
+                                            <div class="tile-img-container thirteen-orphans-tile"><img src="tiles/C9.png" alt="🀏" class="tile-img"></div>
+                                            <div class="tile-img-container thirteen-orphans-tile"><img src="tiles/D1.png" alt="🀙" class="tile-img"></div>
+                                            <div class="tile-img-container thirteen-orphans-tile"><img src="tiles/D9.png" alt="🀡" class="tile-img"></div>
+                                            <div class="tile-img-container thirteen-orphans-tile"><img src="tiles/E.png" alt="🀀" class="tile-img"></div>
+                                            <div class="tile-img-container thirteen-orphans-tile"><img src="tiles/S.png" alt="🀁" class="tile-img"></div>
+                                            <div class="tile-img-container thirteen-orphans-tile"><img src="tiles/W.png" alt="🀂" class="tile-img"></div>
+                                            <div class="tile-img-container thirteen-orphans-tile"><img src="tiles/N.png" alt="🀃" class="tile-img"></div>
+                                            <div class="tile-img-container thirteen-orphans-tile"><img src="tiles/R.png" alt="🀄" class="tile-img"></div>
+                                            <div class="tile-img-container thirteen-orphans-tile"><img src="tiles/F.png" alt="🀅" class="tile-img"></div>
+                                            <div class="tile-img-container thirteen-orphans-tile"><img src="tiles/WH.png" alt="🀆" class="tile-img"></div>
+                                            <div class="tile-img-container tile-special-highlight thirteen-orphans-tile">
                                                 <img src="tiles/F.png" alt="🀅" class="tile-img">
                                                 <div class="highlight-ring"></div>
                                                 <div class="sparkle-effect"></div>
@@ -360,6 +363,8 @@
                                             <p class="note-text">any one duplicate from those 13 tiles to form the final pair.</p>
                                         </div>
                                     </div>
+                                    <!-- Connection line from last tile to annotation -->
+                                    <div class="thirteen-orphans-connection-line"></div>
                                 </div>
                             </div>
                         </div>
@@ -487,7 +492,7 @@
                         <div class="gameplay-step">
                             <div class="step-icon">🗑️</div>
                             <div class="gameplay-step-content">
-                                <h3>Step 3: Discard a Tile</h3>
+                                <h3 id="step3-discard">Step 3: Discard a Tile</h3>
                                 <p>If you don't win, choose 1 unwanted tile and discard it face-up. After discarding, there are two possibilities:</p>
                                 <ul style="margin-top: 12px; text-align: left;">
                                     <li>If no other players wish to "claim" the discarded tile, the turn proceeds to the next player (back to Step 1: Draw a Tile).</li>
@@ -1029,6 +1034,20 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Emoji Assistant -->
+    <div id="emojiAssistant" class="emoji-assistant">
+        <div class="speech-bubble" id="speechBubble">Hello! Click a tile!</div>
+        <div class="emoji-face">
+            <div class="emoji-eye left">
+                <div class="eye-pupil"></div>
+            </div>
+            <div class="emoji-eye right">
+                <div class="eye-pupil"></div>
+            </div>
+            <div class="emoji-mouth"></div>
         </div>
     </div>
 
