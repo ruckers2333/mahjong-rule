@@ -1565,18 +1565,26 @@ function setupEmojiAssistant() {
 
     let speechTimeout;
 
-    function speak(text) {
+    function speak(text, autoHide = true, hideDelay = 2500) {
         if (!text) return;
+        
+        // Clear any existing timeout
+        if (speechTimeout) {
+            clearTimeout(speechTimeout);
+            speechTimeout = null;
+        }
+        
         speechBubble.textContent = text;
         speechBubble.classList.add('show');
         assistant.classList.add('talking');
 
-        // Reset the bubble after a delay
-        if (speechTimeout) clearTimeout(speechTimeout);
-        speechTimeout = setTimeout(() => {
-            speechBubble.classList.remove('show');
-            assistant.classList.remove('talking');
-        }, 2500);
+        // Only auto-hide if autoHide is true
+        if (autoHide) {
+            speechTimeout = setTimeout(() => {
+                speechBubble.classList.remove('show');
+                assistant.classList.remove('talking');
+            }, hideDelay);
+        }
     }
 
     // Initial greeting
@@ -1584,7 +1592,8 @@ function setupEmojiAssistant() {
         speak("Welcome! I'm your Mahjong guide!");
         
         setTimeout(() => {
-            speak("Click any tile, unlock a surprise!");
+            // "Click any tile" message should stay visible until a tile is clicked
+            speak("Click any tile, unlock a surprise!", false);
         }, 3000);
     }, 2000);
 
@@ -1603,7 +1612,8 @@ function setupEmojiAssistant() {
                     const filename = filenameWithExt.split('.')[0];
                     
                     const name = tileNameMap[filename] || 'Mahjong Tile';
-                    speak(name);
+                    // Show tile name for 3 seconds, then hide
+                    speak(name, true, 3000);
                 }
             }
         }
